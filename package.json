@@ -15,5 +15,9 @@
   "scripts": {
     "build": "browserify --debug --transform babelify es6/*.es6 --outfile js/bundle.js"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "jquery": "^2.2.0",
+    "log": "^1.4.0"
+  }
 }
