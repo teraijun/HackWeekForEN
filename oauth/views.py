@@ -17,19 +17,12 @@ from django.middleware.csrf import get_token
 from django.conf import settings
 from django.core import serializers
 import json
-import Cookie
 import os
-import socket
-import oauth2 as oauth
-import urllib
-import urlparse
-import hashlib
-import binascii
 import io
 import StringIO
 import re
-import base64
-from datetime import date
+import random
+
 # import pycurl
 
 sandbox = False
@@ -108,12 +101,35 @@ def get_info(request):
     user_store = client.get_user_store()
     user_info = user_store.getUser()
 
+    user_id = user_info.id
+    if user_info.accounting.businessId :
+        is_evernote_business = True
+    else :
+        is_evernote_business = False
+
+    if user_info.accounting.businessRole == 1:
+        is_evernote_business_admin = True
+    else :
+        is_evernote_business_admin = False
+
+    if is_evernote_business:
+        business_user_id = user_info.accounting.businessId
+        business = user_store.authenticateToBusiness(token=token)
+        business_token = business.authenticationToken
+        business_expiration = business.expiration
+        business_shardId = business.user.shardId
+    else:
+        business_user_id = ''
+        business_token = ''
+        business_expiration = ''
+        business_shardId = ''
+
     note_store = client.get_note_store()
     listNotebooks = note_store.listNotebooks()
-    notebooks = []
+    personal_notebook = []
     for listNotebook in listNotebooks:
         count = get_num_of_note(client, token, listNotebook.guid)
-        notebooks.append({
+        personal_notebook.append({
             'guid': listNotebook.guid,
             'name': listNotebook.name,
             'count': count,
@@ -121,14 +137,39 @@ def get_info(request):
             'updated': listNotebook.serviceUpdated,
         })
 
+    business_notebook = []
+    if is_evernote_business:
+        businessListNotebooks = client.get_business_note_store().listNotebooks(business_token)
+        for listNotebook in businessListNotebooks:
+            count = get_num_of_note(client, token, listNotebook.guid)
+            business_notebook.append({
+                'guid': listNotebook.guid,
+                'name': listNotebook.name,
+                'count': count,
+                'created': listNotebook.serviceCreated,
+                'updated': listNotebook.serviceUpdated,
+            })
+
+    notebook = {
+        'personal': personal_notebook,
+        'business': business_notebook
+    }
+    
+
     response = json_response_with_headers({
             'status': 'success',
             'access_token': token,
             'redirect_url': '/logout/',
             'msg': 'Logout',
-            'notebooks': notebooks,
+            'notebook': notebook,
             'home_url': link_to_en,
-            'username': user_info.username
+            'user_id': user_id,
+            'is_evernote_business': is_evernote_business,
+            'is_evernote_business_admin': is_evernote_business_admin,
+            'business_user_id': business_user_id,
+            'business_token': business_token,
+            'business_expiration': business_expiration,
+            'business_shardId': business_shardId,
     })
     return response
 
@@ -174,8 +215,9 @@ def get_num_of_note(client, token, guid):
 
     notes = []
     try :
-        noteList = note_store.findNotesMetadata(token, note_filter, 0, 100, search_spec)
-        return len(noteList.notes)
+        # noteList = note_store.findNotesMetadata(token, note_filter, 0, 100, search_spec)
+        # return len(noteList.notes)
+        return random.randint(1, 10)
 
     except Errors.EDAMUserException, edue:
         print "EDAMUserException:", edue

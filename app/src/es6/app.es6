@@ -9,8 +9,7 @@ var base_url = 'http://localhost:8004';
 // var base_url = '';
 
 var en_status = '';
-var normal_data = {};
-var sort_data = {};
+var notebook = {};
 
 function main(){
 	info();	
@@ -21,41 +20,55 @@ function main(){
           window.location.href = url;
 	});
 	$("#switch").on("click", function(e) {
-		var req = {};
+		var id = $('.notebook_box option:selected').attr('id');
+		var data = {};
+		if (id == 'personal'){
+			data = notebook.personal;
+		} else {
+			data = notebook.business;
+		}
 		if (e.target.className == 'normal'){
-			req = sort_data;
+    		data = _.sortBy(data, function(a){return a.count}).reverse();
 			$(e.target).attr('class', 'sort');
 		} else {
-			req = normal_data;
 			$(e.target).attr('class', 'normal');
 		}
-		draw(req);
-	});	
+		draw(data);
+	});
+	$('.notebook_box').on('change', function(e){
+		var data = {};
+		if(e.target.selectedIndex == 0){
+			data = notebook.personal;
+		} else {
+			data = notebook.business;
+		}
+		draw(data);
+	});
 }
 
+function truncateName(arr){
+	for (var i=0; i<arr.length; i++){
+		var notebook = arr[i];
+		notebook.name = notebook.name.length > 10 ? notebook.name.substring(0,10)+'...' : notebook.name;
+	}
+	return arr;
+}
 
 function info(){
 	$.ajax({
 		type: 'GET',
 		xhrFields: { withCredentials: true },
-		// url: base_url + '/info/',
-		url: 'data.json',
+		url: base_url + '/info/',
+		// url: 'data.json',
 		dataType: 'json',
 		success: function(response) {
 			$('#auth').attr('href', base_url + response.redirect_url +'?callback='+encodeURIComponent(window.location.href)).text(response.msg);
 			if (response.status != 'redirect'){
-				var data = [];
-				for (var i=0; i<response.notebooks.length; i++){
-					var notebook = response.notebooks[i];
-					var name = notebook.name.length > 10 ? notebook.name.substring(0,10)+'...' : notebook.name;
-					var count = notebook.count;
-					data.push({name: name, count: count});
-				}
+				$("#menu").show();
 				en_status = response;
-				normal_data = data;
-	    		sort_data = _.sortBy(data, function(a){return a.count}).reverse();
-				draw(normal_data);
-				$("#switch").show();				
+				notebook = response.notebook;
+				var data = truncateName(notebook.personal);
+				draw(data);
 			}
 		}
 	});
@@ -63,7 +76,8 @@ function info(){
 
 function draw(data){
 	var margin = {top: 20, right: 20, bottom: 30, left: 40},
-	width = 1500,
+	// width = 1500,
+	width = 60 * data.length,
 	height = 512;
 
 	var x = d3.scale.ordinal()
