@@ -6,7 +6,6 @@ import $ from 'jquery';
 /**
  */
 var base_url = 'http://localhost:8004';
-// var base_url = 'http://52.27.131.117';
 // var base_url = '';
 
 var en_status = '';
@@ -39,8 +38,8 @@ function info(){
 	$.ajax({
 		type: 'GET',
 		xhrFields: { withCredentials: true },
-		url: base_url + '/info/',
-		// url: 'data.json',
+		// url: base_url + '/info/',
+		url: 'data.json',
 		dataType: 'json',
 		success: function(response) {
 			$('#auth').attr('href', base_url + response.redirect_url +'?callback='+encodeURIComponent(window.location.href)).text(response.msg);

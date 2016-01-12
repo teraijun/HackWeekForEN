@@ -3,7 +3,6 @@ from django.conf import settings
 
 urlpatterns = patterns(
     '',
-    url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT, 'show_indexes':True}),
     url(r"^$", "oauth.views.index", name="evernote_index"),
     url(r"^callback/$", "oauth.views.callback", name="evernote_callback"),
     url(r"^login/$", "oauth.views.login", name="evernote_login"),

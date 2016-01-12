@@ -6,9 +6,9 @@ import sys
 # virtualenvのパッケージパス
 site.addsitedir("/home/ec2-user/ENV/lib/python2.7/site-packages")
 
-sys.path.append('/var/www/cgi-bin/HackWeekForENServer')
+sys.path.append('/var/www/cgi-bin/HackWeekForEN')
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "app.settings")
 
 # virtualenvの実行コードのパス
 activate_env = os.path.expanduser("/home/ec2-user/ENV/bin/activate_this.py")
