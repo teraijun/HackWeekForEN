@@ -3,39 +3,18 @@
 <head lang="en">
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
   <link type="text/css" rel="stylesheet" href="style.css"/>
-  <style type="text/css">
-
-  .chart {
-    display: block;
-    margin: auto;
-    margin-top: 40px;
-  }
-
-  text {
-    font-size: 11px;
-  }
-
-  rect {
-    fill: none;
-  }
-
-  </style>
-
 </head>
 <body>
   <div class="status">
     <a id="auth" href=""></a>
   </div>
+  <button id="switch" class="normal">Switch</button>
   <div id="body">
-    <div id="footer">
-      d3.layout.treemap
-      <div class="hint">click or option-click to descend or ascend</div>
-      <div><select>
-        <option value="size">Size</option>
-        <option value="count">Count</option>
-      </select></div>
-    </div>
+
   </div>
+  <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.7.0/lodash.min.js"></script>
+  <script src="http://d3js.org/d3.v3.min.js"></script>
 
   <script src="./js/bundle.js"></script>
 </body>

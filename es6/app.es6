@@ -6,67 +6,14 @@ import $ from 'jquery';
 /**
  */
 var base_url = 'http://localhost:8004';
-var en_status = '';
+// var base_url = 'http://52.27.131.117';
+// var base_url = '';
 
+var en_status = '';
+var normal_data = {};
+var sort_data = {};
 
 function main(){
-	var w = 1280 - 80,
-	h = 800 - 180,
-	x = d3.scale.linear().range([0, w]),
-	y = d3.scale.linear().range([0, h]),
-	color = d3.scale.category20c(),
-	root,
-	node;
-
-	var treemap = d3.layout.treemap()
-	.round(false)
-	.size([w, h])
-	.sticky(true)
-	.value(function(d) { return d.size; });
-
-	var svg = d3.select("#body").append("div")
-	.attr("class", "chart")
-	.style("width", w + "px")
-	.style("height", h + "px")
-	.append("svg:svg")
-	.attr("width", w)
-	.attr("height", h)
-	.append("svg:g")
-	.attr("transform", "translate(.5,.5)");
-
-	d3.json("flare.json", function(data) {
-	node = root = data;
-
-	var nodes = treemap.nodes(root)
-	.filter(function(d) { return !d.children; });
-
-	var cell = svg.selectAll("g")
-	.data(nodes)
-	.enter().append("svg:g")
-	.attr("class", "cell")
-	.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
-	.on("click", function(d) { return zoom(node == d.parent ? root : d.parent); });
-
-	cell.append("svg:rect")
-	.attr("width", function(d) { return d.dx - 1; })
-	.attr("height", function(d) { return d.dy - 1; })
-	.style("fill", function(d) { return color(d.parent.name); });
-
-	cell.append("svg:text")
-	.attr("x", function(d) { return d.dx / 2; })
-	.attr("y", function(d) { return d.dy / 2; })
-	.attr("dy", ".35em")
-	.attr("text-anchor", "middle")
-	.text(function(d) { return d.name; })
-	.style("opacity", function(d) { d.w = this.getComputedTextLength(); return d.dx > d.w ? 1 : 0; });
-
-	// d3.select(window).on("click", function() { zoom(root); });
-
-	d3.select("select").on("change", function() {
-	  treemap.value(this.value == "size" ? size : count).nodes(root);
-	  zoom(node);
-	});
-	});
 	info();	
 	$('#auth').on('click', function(e){
           e.preventDefault();
@@ -74,49 +21,99 @@ function main(){
           if (url.indexOf('logout')!=-1) window.localStorage.clear();
           window.location.href = url;
 	});
+	$("#switch").on("click", function(e) {
+		var req = {};
+		if (e.target.className == 'normal'){
+			req = sort_data;
+			$(e.target).attr('class', 'sort');
+		} else {
+			req = normal_data;
+			$(e.target).attr('class', 'normal');
+		}
+		draw(req);
+	});	
 }
 
-function size(d) {
-  return d.size;
-}
-
-function count(d) {
-  return 1;
-}
-
-function zoom(d) {
-  var kx = w / d.dx, ky = h / d.dy;
-  x.domain([d.x, d.x + d.dx]);
-  y.domain([d.y, d.y + d.dy]);
-
-  var t = svg.selectAll("g.cell").transition()
-  .duration(d3.event.altKey ? 7500 : 750)
-  .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
-
-  t.select("rect")
-  .attr("width", function(d) { return kx * d.dx - 1; })
-  .attr("height", function(d) { return ky * d.dy - 1; })
-
-  t.select("text")
-  .attr("x", function(d) { return kx * d.dx / 2; })
-  .attr("y", function(d) { return ky * d.dy / 2; })
-  .style("opacity", function(d) { return kx * d.dx > d.w ? 1 : 0; });
-
-  node = d;
-  d3.event.stopPropagation();
-}
 
 function info(){
 	$.ajax({
 		type: 'GET',
 		xhrFields: { withCredentials: true },
-		url: base_url + '/info/',
+		// url: base_url + '/info/',
+		url: 'data.json',
 		dataType: 'json',
 		success: function(response) {
 			$('#auth').attr('href', base_url + response.redirect_url +'?callback='+encodeURIComponent(window.location.href)).text(response.msg);
+			var data = [];
+			for (var i=0; i<response.notebooks.length; i++){
+				var notebook = response.notebooks[i];
+				var name = notebook.name.length > 10 ? notebook.name.substring(0,10)+'...' : notebook.name;
+				var count = notebook.count;
+				data.push({name: name, count: count});
+			}
 			en_status = response;
+			normal_data = data;
+    		sort_data = _.sortBy(data, function(a){return a.count}).reverse();
+			draw(normal_data);
 		}
 	});
+}
+
+function draw(data){
+	var margin = {top: 20, right: 20, bottom: 30, left: 40},
+	width = 1500,
+	height = 512;
+
+	var x = d3.scale.ordinal()
+	.rangeRoundBands([0, width], .1);
+
+	var y = d3.scale.linear()
+	.range([height, 0]);
+
+	var xAxis = d3.svg.axis()
+	.scale(x)
+	.orient("bottom");
+
+	var yAxis = d3.svg.axis()
+	    .scale(y)
+	    .orient("left")
+	    .ticks(10);
+
+	d3.selectAll("svg").remove();	
+	var svg = d3.select("body").append("svg")
+		.attr("id", "barchart")
+	    .attr("width", width + margin.left + margin.right)
+	    .attr("height", height + margin.top + margin.bottom)
+	  .append("g")
+	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	x.domain(data.map(function(d) { return d.name; }));
+	y.domain([0, d3.max(data, function(d) { return d.count; })]);
+
+	svg.append("g")
+	  .attr("class", "x axis")
+	  .attr("transform", "translate(0," + height + ")")
+	  .call(xAxis);
+
+	svg.append("g")
+	  .attr("class", "y axis")
+	  .call(yAxis)
+	.append("text")
+	  .attr("transform", "rotate(-90)")
+	  .attr("y", 6)
+	  .attr("dy", ".71em")
+	  .style("text-anchor", "end")
+	  .text("Note Count");
+
+	svg.selectAll(".bar")
+		.data(data)
+		.enter().append("rect")
+		.attr("class", "bar")
+		.attr("x", function(d) { return x(d.name); })
+		.attr("width", x.rangeBand())
+		.attr("y", function(d) { return y(d.count); })
+		.attr("height", function(d) { return height - y(d.count); });
+
 }
 
 
