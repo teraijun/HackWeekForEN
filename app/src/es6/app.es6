@@ -39,22 +39,25 @@ function info(){
 	$.ajax({
 		type: 'GET',
 		xhrFields: { withCredentials: true },
-		// url: base_url + '/info/',
-		url: 'data.json',
+		url: base_url + '/info/',
+		// url: 'data.json',
 		dataType: 'json',
 		success: function(response) {
 			$('#auth').attr('href', base_url + response.redirect_url +'?callback='+encodeURIComponent(window.location.href)).text(response.msg);
-			var data = [];
-			for (var i=0; i<response.notebooks.length; i++){
-				var notebook = response.notebooks[i];
-				var name = notebook.name.length > 10 ? notebook.name.substring(0,10)+'...' : notebook.name;
-				var count = notebook.count;
-				data.push({name: name, count: count});
+			if (response.status != 'redirect'){
+				var data = [];
+				for (var i=0; i<response.notebooks.length; i++){
+					var notebook = response.notebooks[i];
+					var name = notebook.name.length > 10 ? notebook.name.substring(0,10)+'...' : notebook.name;
+					var count = notebook.count;
+					data.push({name: name, count: count});
+				}
+				en_status = response;
+				normal_data = data;
+	    		sort_data = _.sortBy(data, function(a){return a.count}).reverse();
+				draw(normal_data);
+				$("#switch").show();				
 			}
-			en_status = response;
-			normal_data = data;
-    		sort_data = _.sortBy(data, function(a){return a.count}).reverse();
-			draw(normal_data);
 		}
 	});
 }
