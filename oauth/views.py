@@ -35,7 +35,8 @@ else:
 
 link_to_en = base_url + '/Home.action'
 
-Search_Period = 'updated:day-2'
+# Search_Period = 'updated:month'
+Search_Period = 'updated:day-30'
 
 
 def get_evernote_client(token=None):

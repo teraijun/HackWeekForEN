@@ -20,3 +20,6 @@
 .x.axis path {
   display: none;
 }
+text {
+  font: 10px sans-serif;
+}
