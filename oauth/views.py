@@ -129,45 +129,12 @@ def get_info(request):
         business_expiration = ''
         business_shardId = ''
 
-    note_store = client.get_note_store()
-    listNotebooks = note_store.listNotebooks()
-    personal_notebook = []
-    for listNotebook in listNotebooks:
-        count = get_num_of_note(client, token, listNotebook.guid)
-        personal_notebook.append({
-            'guid': listNotebook.guid,
-            'name': listNotebook.name,
-            'count': count,
-            'created': listNotebook.serviceCreated,
-            'updated': listNotebook.serviceUpdated,
-        })
-
-    business_notebook = []
-    if is_evernote_business:
-        businessListNotebooks = client.get_business_note_store().listNotebooks(business_token)
-        for listNotebook in businessListNotebooks:
-            count = get_num_of_note(client, token, listNotebook.guid)
-            business_notebook.append({
-                'guid': listNotebook.guid,
-                'name': listNotebook.name,
-                'count': count,
-                'created': listNotebook.serviceCreated,
-                'updated': listNotebook.serviceUpdated,
-            })
-
-    notebook = {
-        'personal': personal_notebook,
-        'business': business_notebook
-    }
-    
-
     response = json_response_with_headers({
             'status': 'success',
             'csrf_token': get_token(request),
             'access_token': token,
             'redirect_url': '/logout/',
             'msg': 'Logout',
-            'notebook': notebook,
             'home_url': link_to_en,
             'user_id': user_id,
             'is_evernote_business': is_evernote_business,
@@ -179,8 +146,7 @@ def get_info(request):
     })
     return response
 
-def get_num_of_note(client, token, guid):
-    note_store = client.get_note_store()
+def get_num_of_note(note_store, token, guid):
     note_filter = NoteStore.NoteFilter()
     note_filter.notebookGuid = guid
     note_filter.order = NoteSortOrder.UPDATED
@@ -193,9 +159,9 @@ def get_num_of_note(client, token, guid):
 
     notes = []
     try :
-        # noteList = note_store.findNotesMetadata(token, note_filter, 0, 100, search_spec)
-        # return len(noteList.notes)
-        return random.randint(1, 10)
+        noteList = note_store.findNotesMetadata(token, note_filter, 0, 100, search_spec)
+        return len(noteList.notes)
+        # return random.randint(1, 10)
 
     except Errors.EDAMUserException, edue:
         print "EDAMUserException:", edue
@@ -205,6 +171,56 @@ def get_num_of_note(client, token, guid):
         print "EDAMNotFoundException: Invalid parent notebook GUID"
         return 0
 
+def get_notebook(request):
+    try:
+        token = request.POST['access_token']
+        business_token = request.POST['business_token']
+        client = get_evernote_client(token=token)
+    except KeyError:
+        return json_response_with_headers({
+            'status': 'redirect',
+            'redirect_url': '/login/',
+            'home_url': link_to_en,
+            'msg': 'Login to use'
+        })    
+    note_store = client.get_note_store()
+    listNotebooks = note_store.listNotebooks()
+    personal_notebook = []
+    for listNotebook in listNotebooks:
+        count = get_num_of_note(note_store, token, listNotebook.guid)
+        personal_notebook.append({
+            'guid': listNotebook.guid,
+            'name': listNotebook.name,
+            'count': count,
+            'created': listNotebook.serviceCreated,
+            'updated': listNotebook.serviceUpdated,
+        })
+
+    business_notebook = []
+    if business_token:
+        business_note_store = client.get_business_note_store()
+        businessListNotebooks = business_note_store.listNotebooks(business_token)
+        for listNotebook in businessListNotebooks:
+            count = get_num_of_note(business_note_store, business_token, listNotebook.guid)
+            business_notebook.append({
+                'guid': listNotebook.guid,
+                'name': listNotebook.name,
+                'count': count,
+                'created': listNotebook.serviceCreated,
+                'updated': listNotebook.serviceUpdated,
+            })
+
+    notebook = {
+        'personal': personal_notebook,
+        'business': business_notebook
+    }
+    response = json_response_with_headers({
+            'status': 'success',
+            'access_token': token,
+            'notebook': notebook,
+            'business_token': business_token,
+    })
+    return response
 
 def get_words(request):
     try:

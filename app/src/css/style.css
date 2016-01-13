@@ -1,3 +1,6 @@
+section {
+    height: 1000px !important;
+}
 .bar {
   fill: steelblue;
 }
@@ -22,4 +25,8 @@
 }
 text {
   font: 10px sans-serif;
+}
+
+.after_login{
+    display: none;
 }

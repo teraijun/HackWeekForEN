@@ -2,30 +2,167 @@
 <html>
 <head lang="en">
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
-  <!-- <link type="text/css" rel="stylesheet" href="src/style.css"/> -->
-  <link type="text/css" rel="stylesheet" href="/style.css"/>
-</head>
-<body>
-  <div class="status">
-    <a id="auth" href=""></a>
-  </div>
-  <div id="menu" style="display: none">
-    <select class="notebook_box">
-      <option class="notebook" id="personal">Personal</option>
-      <option class="notebook" id="business">Business</option>
-    </select>
-    <button id="switch" class="normal">Switch</button>
-    <button id="wordsBtn">Show Words</button>
-  </div>
-  <div id="body">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="">
 
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+  <!-- Optional theme -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+  <!-- <link type="text/css" rel="stylesheet" href="src/css/style.css"/> -->
+  <link type="text/css" rel="stylesheet" href="/css/style.css"/>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/scrolling-nav.css" />
+
+</head>
+
+<body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand page-scroll" href="#page-top">Visualize Your Notes</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+                <ul class="nav navbar-nav">
+                    <!-- Hidden li included to remove active class from about link when scrolled up past about section -->
+                    <li class="hidden">
+                        <a class="page-scroll" href="#page-top"></a>
+                    </li>
+                    <li class="after_login">
+                        <a class="page-scroll" href="#about">Note Count</a>
+                    </li>
+                    <li class="after_login">
+                        <a class="page-scroll" href="#services">Word Cloud</a>
+                    </li>
+                    <li class="after_login">
+                        <a class="page-scroll" href="#contact">Graph</a>
+                    </li>
+                    <li class="after_login">
+                      <a id="logout" class='auth' href="">SIGN OUT</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Intro Section -->
+    <section id="intro" class="intro-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="intro_box before_login">
+                      <h1>Visualize Your Notes</h1>
+                      <a id="login" class='auth btn btn-default' href="">SIGN IN</a>
+                    </div>
+                    <div class="bubble_box after_login">
+                      <h1>Bubble Chart</h1>
+                      <div id="bubble_chart">
+                      </div>                      
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section after_login">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                  <div class="bar_box">
+                    <h1>Bar Chart</h1>
+                    <ul class="nav nav-pills">
+                      <li class="status active" id="personal"><a href="#">Personal</a></li>
+                      <li class="status" id="business"><a href="#">Business</a></li>
+                      <div id="menu">
+                        <button id="switch" class="normal">Switch</button>
+                      </div>
+                    </ul>
+                    <div id="bar_chart">
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="services-section after_login">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                  <div class="word_cloud_box">
+                    <h1>Word Cloud</h1>
+                    <div id="word_chart">
+                    </div>
+                  </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section after_login">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1>Graph</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+<!-- Modal -->
+<!--
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+        </div>
+        <div class="modal-body">
+          ...
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
   </div>
-  <div id="list" style="display: none">
-    <span>Results</span>
-    <ul>
-    </ul>
-  </div>
+ -->
+
+
+
+
+
+
+
   <!-- <script src="src/js/bundle.js"></script>-->
+  <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
   <script src="/js/bundle.js"></script>
+  <script src="/js/jquery.easing.min.js"></script>
+  <script src="/js/scrolling-nav.js"></script>
 </body>
 </html>

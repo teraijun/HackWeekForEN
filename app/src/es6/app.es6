@@ -2,15 +2,16 @@
 import console from 'console';
 import d3 from 'd3';
 import cloud from 'd3-cloud';
-import $ from 'jquery';
+import 'jquery';
+import 'bootstrap';
 import _ from 'lodash';
 
 /**
  */
-var base_url = 'http://localhost:8004';
+var base_url = 'http://localhost:8006';
 // var base_url = '';
 
-var en_status = '';
+var en_status = 'personal';
 var notebook_data = {};
 var note_data = {};
 
@@ -36,14 +37,6 @@ class Utils {
 			$(e.target).attr('class', 'normal');
 		}
 		callback(data);
-	}
-	selectChange(e, callback){
-		if(e.target.selectedIndex == 0){
-			en_status = 'personal';
-		} else {
-			en_status = 'business';
-		}
-		callback();
 	}
 }
 
@@ -93,16 +86,45 @@ class Apis {
 			// url: 'data.json',
 			dataType: 'json',
 			success: function(response) {
-				$('#auth').attr('href', base_url + response.redirect_url +'?callback='+encodeURIComponent(window.location.href)).text(response.msg);
+				$('.auth').attr('href', base_url + response.redirect_url +'?callback='+encodeURIComponent(window.location.href));
 				if (response.status != 'redirect'){
-					$("#menu").show();
+					$(".before_login").hide();
+					$(".after_login").show();
 					document.cookie = 'csrftoken=' + response.csrf_token;
 					window.localStorage.setItem('access_token', response.access_token);
-					window.localStorage.setItem('business_token', response.business_token);
-					notebook_data = response.notebook;
-					callback(notebook_data.personal);
-					en_status = 'personal';
+					window.localStorage.setItem('business_token', response.business_token);					
+					callback();
+				} else {
+					$(".before_login").show();
+					$(".after_login").hide();
 				}
+			}
+		});
+	}
+
+	notebook(callback){
+		var that = this;
+		$.ajax({
+			type: 'POST',
+			xhrFields: { withCredentials: true },
+			beforeSend: function(xhr, settings) {
+				xhr.setRequestHeader("X-CSRFToken", that.csrftoken);
+			},
+			url: base_url + '/notebook/',
+			data: {
+				'access_token': window.localStorage.getItem('access_token'),
+				'business_token': window.localStorage.getItem('business_token')
+			},
+			dataType: 'json',
+			success: function(response) {
+				notebook_data = response.notebook;
+				var bdata = {};
+				if (en_status == 'personal'){
+					bdata = response.notebook.personal;
+				} else {
+					bdata = response.notebook.business;
+				}
+				callback(bdata);
 			}
 		});
 	}
@@ -133,7 +155,6 @@ class Apis {
 			}
 		});
 	}
-
 }
 
 class BarChart {
@@ -143,8 +164,8 @@ class BarChart {
 		data = this.truncateName(data);
 		var margin = {top: 20, right: 20, bottom: 30, left: 40},
 		// width = 1500,
-		width = 60 * data.length,
-		height = 512;
+		width = 940,
+		height = 465;
 
 		var x = d3.scale.ordinal()
 		.rangeRoundBands([0, width], .1);
@@ -161,8 +182,8 @@ class BarChart {
 			.orient("left")
 			.ticks(10);
 
-		d3.selectAll("svg").remove();	
-		var svg = d3.select("body").append("svg")
+		d3.selectAll("#barchart").remove();	
+		var svg = d3.select("#bar_chart").append("svg")
 			.attr("id", "barchart")
 			.attr("width", width + margin.left + margin.right)
 			.attr("height", height + margin.top + margin.bottom)
@@ -211,7 +232,7 @@ class BubbleChart{
 	}
 
 	showBubbleChart(){
-		var diameter = 960,
+		var diameter = 720,
 		format = d3.format(",d"),
 		color = d3.scale.category20c();
 
@@ -220,7 +241,7 @@ class BubbleChart{
 			.size([diameter, diameter])
 			.padding(1.5);
 
-		var svg = d3.select("body").append("svg")
+		var svg = d3.select("#bubble_chart").append("svg")
 			.attr("width", diameter)
 			.attr("height", diameter)
 			.attr("class", "bubble");
@@ -266,52 +287,7 @@ class BubbleChart{
 	}
 }
 
-function main(){
-	var api = new Apis();
-	var view = new View();
-	var utils = new Utils();
-	var bar = new BarChart();
-	var bubble = new BubbleChart();
-	api.info(data => { 
-		bar.draw(data);
-	});
-	$('#auth').on('click', e => {
-		e.preventDefault();
-		utils.auth(e);
-	});
-	$("#switch").on("click", e => {
-		utils.change(e, data =>{
-			bar.draw(data);
-		});
-	});
-	$('.notebook_box').on('change', e => {
-		utils.selectChange(e, function(){
-			var ndata = {};
-			var bdata = {};
-			if (en_status == 'personal'){
-				ndata = notebook_data.personal;
-				bdata = note_data.personal;
-			} else {
-				ndata = notebook_data.business;
-				bdata = note_data.business;
-			}
-			bar.draw(ndata);
-			view.showResults(bdata);
-		});
-	});
-
-	$('#wordsBtn').on('click', e => {
-		e.preventDefault();
-		api.words((ndata) => {
-			// view.showResults(ndata);
-
-			test(ndata[3].content.split(" "));
-			// bubble.showBubbleChart();
-		});
-	});
-}
-
-function test(list){
+function word_cloud(list){
 	var fill = d3.scale.category20();
 
 	var layout = cloud()
@@ -327,26 +303,69 @@ function test(list){
 
 	layout.start();
 
-function draw(words) {
-  d3.select("body").append("svg")
-      .attr("width", layout.size()[0])
-      .attr("height", layout.size()[1])
-    .append("g")
-      .attr("transform", "translate(" + layout.size()[0] / 2 + "," + layout.size()[1] / 2 + ")")
-    .selectAll("text")
-      .data(words)
-    .enter().append("text")
-      .style("font-size", function(d) { return d.size + "px"; })
-      .style("font-family", "Impact")
-      .style("fill", function(d, i) { return fill(i); })
-      .attr("text-anchor", "middle")
-      .attr("transform", function(d) {
-        return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
-      })
-      .text(function(d) { return d.text; });
+	function draw(words) {
+	  d3.select("#word_chart").append("svg")
+	      .attr("width", layout.size()[0])
+	      .attr("height", layout.size()[1])
+	    .append("g")
+	      .attr("transform", "translate(" + layout.size()[0] / 2 + "," + layout.size()[1] / 2 + ")")
+	    .selectAll("text")
+	      .data(words)
+	    .enter().append("text")
+	      .style("font-size", function(d) { return d.size + "px"; })
+	      .style("font-family", "Impact")
+	      .style("fill", function(d, i) { return fill(i); })
+	      .attr("text-anchor", "middle")
+	      .attr("transform", function(d) {
+	        return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+	      })
+	      .text(function(d) { return d.text; });
+	}
 }
 
 
+
+function main(){
+	var api = new Apis();
+	var view = new View();
+	var utils = new Utils();
+	var bar = new BarChart();
+	var bubble = new BubbleChart();
+	api.info(() => {
+		api.words((data)=>{
+			bubble.showBubbleChart();
+			word_cloud(data[0].content.split(" "));
+		});
+		api.notebook((data)=>{
+			bar.draw(data);
+		});
+	});
+
+	$('.auth').on('click', e => {
+		e.preventDefault();
+		utils.auth(e);
+	});
+	$("#switch").on("click", e => {
+		utils.change(e, data =>{
+			bar.draw(data);
+		});
+	});
+	$('.status').on('click', e => {
+		e.preventDefault();
+		$('.active').removeClass('active');
+		var id = e.target.parentElement.id;
+		en_status = id;
+		var ndata = {};
+		if (en_status == 'personal'){
+			$('.status#personal').addClass('active');
+			ndata = notebook_data.personal;
+		} else {
+			$('.status#business').addClass('active');
+			ndata = notebook_data.business;
+		}
+		bar.draw(ndata);
+		// view.showResults(bdata);
+	});
 }
 
 
