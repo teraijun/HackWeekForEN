@@ -1,6 +1,7 @@
 'use strict';
 import console from 'console';
 import d3 from 'd3';
+import cloud from 'd3-cloud';
 import $ from 'jquery';
 import _ from 'lodash';
 
@@ -69,7 +70,6 @@ class View {
 class Apis {
 	constructor(){
 		this.csrftoken = this.getCookie('csrftoken');
-		this.view = new View();
 	}
 	getCookie(name){
 		var cookieValue = null;
@@ -129,8 +129,7 @@ class Apis {
 				} else {
 					ndata = response.notes.business;
 				}
-				that.view.showResults(ndata);
-				callback();
+				callback(ndata);
 			}
 		});
 	}
@@ -303,11 +302,53 @@ function main(){
 
 	$('#wordsBtn').on('click', e => {
 		e.preventDefault();
-		api.words(() => {
-			bubble.showBubbleChart();
+		api.words((ndata) => {
+			// view.showResults(ndata);
+
+			test(ndata[3].content.split(" "));
+			// bubble.showBubbleChart();
 		});
 	});
 }
+
+function test(list){
+	var fill = d3.scale.category20();
+
+	var layout = cloud()
+	    .size([500, 500])
+	    .words(list.map(function(d) {
+	      return {text: d, size: 10 + Math.random() * 90, test: "haha"};
+	    }))
+	    .padding(5)
+	    .rotate(function() { return ~~(Math.random() * 2) * 90; })
+	    .font("Impact")
+	    .fontSize(function(d) { return d.size; })
+	    .on("end", draw);
+
+	layout.start();
+
+function draw(words) {
+  d3.select("body").append("svg")
+      .attr("width", layout.size()[0])
+      .attr("height", layout.size()[1])
+    .append("g")
+      .attr("transform", "translate(" + layout.size()[0] / 2 + "," + layout.size()[1] / 2 + ")")
+    .selectAll("text")
+      .data(words)
+    .enter().append("text")
+      .style("font-size", function(d) { return d.size + "px"; })
+      .style("font-family", "Impact")
+      .style("fill", function(d, i) { return fill(i); })
+      .attr("text-anchor", "middle")
+      .attr("transform", function(d) {
+        return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+      })
+      .text(function(d) { return d.text; });
+}
+
+
+}
+
 
 
 $( document ).ready(() => {
