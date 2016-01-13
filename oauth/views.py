@@ -23,6 +23,8 @@ import StringIO
 import re
 import random
 from bs4 import BeautifulSoup
+from collections import Counter
+from textblob import TextBlob
 
 # import pycurl
 
@@ -37,6 +39,14 @@ link_to_en = base_url + '/Home.action'
 
 # Search_Period = 'updated:month'
 Search_Period = 'updated:day-30'
+
+stop_words = [
+    "a", "an", "and", "are", "as", "at", "be", "but", "by",
+    "for", "if", "in", "into", "is", "it",
+    "no", "not", "of", "on", "or", "such",
+    "that", "the", "their", "then", "there", "these",
+    "they", "this", "to", "was", "will", "with"
+];
 
 
 def get_evernote_client(token=None):
@@ -222,6 +232,76 @@ def get_notebook(request):
     })
     return response
 
+def get_word(request):
+    try:
+        token = request.POST['access_token']
+        business_token = request.POST['business_token']
+        client = get_evernote_client(token=token)
+    except KeyError:
+        return json_response_with_headers({
+            'status': 'redirect',
+            'redirect_url': '/login/',
+            'home_url': link_to_en,
+            'msg': 'Login to use'
+        })
+    notes = {}
+    # for personal
+    personal_note = get_note_common_words(client.get_note_store(), token)
+
+    # for business
+    business_note = {}
+    if business_token :
+        business_note = get_note_common_words(client.get_business_note_store(), business_token)
+
+    words = {
+        'personal': personal_note,
+        'business': business_note
+    }
+    response = json_response_with_headers({
+            'status': 'success',
+            'access_token': token,
+            'words': words
+    })
+    return response
+
+
+def get_note_common_words(note_store, token):
+    whole_content = ''
+    note_filter = NoteStore.NoteFilter()
+    note_filter.order = NoteSortOrder.UPDATED
+    note_filter.words = Search_Period
+
+    search_spec = NoteStore.NotesMetadataResultSpec()
+    search_spec.includeAttributes = True;
+    search_spec.includeCreated = True;
+    search_spec.includeUpdated = True;
+    search_spec.includeTitle = True;
+    try :
+        noteList = note_store.findNotesMetadata(token, note_filter, 0, 1, search_spec)
+        for n in noteList.notes:
+            content = note_store.getNoteContent(token, n.guid)
+            soup = BeautifulSoup(content.decode('utf-8'), "html.parser")
+            parsed_content = ''
+            for tag in soup.find_all(re.compile('.*')):
+                if tag.string is not None:
+                    if len(parsed_content) == 0:
+                        parsed_content = (tag.string)
+                    else:
+                        parsed_content += ' ' + (tag.string)
+            whole_content += parsed_content + ' '
+
+    except Errors.EDAMUserException, edue:
+        print "EDAMUserException:", edue
+    except Errors.EDAMNotFoundException, ednfe:
+        print "EDAMNotFoundException: Invalid parent notebook GUID"
+
+    most_common_words = []
+    if len(whole_content) > 0:
+        most_common_words = get_most_common_words(whole_content)
+
+    return most_common_words
+
+
 def get_words(request):
     try:
         token = request.POST['access_token']
@@ -236,26 +316,27 @@ def get_words(request):
         })
     notes = {}
     # for personal
-    personal_notes = get_note_list(client.get_note_store(), token)
+    personal_note = get_notes_list(client.get_note_store(), token)
 
     # for business
-    business_notes = []
+    business_note = {}
     if business_token :
-        business_notes = get_note_list(client.get_business_note_store(), business_token)
+        business_note = get_notes_list(client.get_business_note_store(), business_token)
 
     notes = {
-        'personal': personal_notes,
-        'business': business_notes,
+        'personal': personal_note,
+        'business': business_note
     }
     response = json_response_with_headers({
             'status': 'success',
             'access_token': token,
-            'notes': notes
+            'note': notes
     })
     return response
 
-def get_note_list(note_store, token):
+def get_notes_list(note_store, token):
     notes = []
+    whole_content = ''
     note_filter = NoteStore.NoteFilter()
     note_filter.order = NoteSortOrder.UPDATED
     note_filter.words = Search_Period
@@ -276,7 +357,8 @@ def get_note_list(note_store, token):
                     if len(parsed_content) == 0:
                         parsed_content = (tag.string)
                     else:
-                        parsed_content += " " + (tag.string)
+                        parsed_content += ' ' + (tag.string)
+            whole_content += parsed_content + ' '
             notes.append({
                 "title": n.title,
                 "note_id": n.guid,
@@ -289,7 +371,37 @@ def get_note_list(note_store, token):
     except Errors.EDAMNotFoundException, ednfe:
         print "EDAMNotFoundException: Invalid parent notebook GUID"
 
-    return notes
+    most_common_words = []
+    if len(whole_content) > 0:
+        most_common_words = get_most_common_words(whole_content)
+    
+    most_common_words_obj = convertArrToObject(most_common_words)
+
+    note = {
+        'notes': notes,
+        'most_common_words': most_common_words_obj
+    }
+    return note
+
+def get_most_common_words(content):
+    textBlob = TextBlob(content)
+    nouns = textBlob.noun_phrases
+
+    top_fifty = Counter(nouns).most_common(50)
+    return top_fifty
+
+def convertArrToObject(arr):
+    newArr = []
+    for word in arr:
+        newArr.append({
+            "name": word[0], "size": word[1]
+        })
+    obj = {
+         "name": "flare",
+         "children": newArr
+    }
+    return obj
+
 
 def json_response_with_headers(data, status=200):
     response_data = data

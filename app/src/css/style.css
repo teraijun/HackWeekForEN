@@ -27,6 +27,6 @@ text {
   font: 10px sans-serif;
 }
 
-.after_login{
+.after_login, .toggle_status{
     display: none;
 }

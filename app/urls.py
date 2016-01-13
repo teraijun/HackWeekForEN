@@ -9,5 +9,6 @@ urlpatterns = patterns(
     url(r"^logout/$", "oauth.views.logout", name="evernote_logout"),
     url(r"^info/$", "oauth.views.get_info", name="evernote_info"),
     url(r"^notebook/$", "oauth.views.get_notebook", name="evernote_notebook"),
+    url(r"^word/$", "oauth.views.get_word", name="evernote_word"),
     url(r"^words/$", "oauth.views.get_words", name="evernote_words"),
 )

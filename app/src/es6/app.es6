@@ -14,10 +14,19 @@ var base_url = 'http://localhost:8006';
 var en_status = 'personal';
 var notebook_data = {};
 var note_data = {};
+var notes_data = {};
 
 
 class Utils {
-	constructor(){}
+	constructor(){
+		this.stop_words = [
+			"a", "an", "and", "are", "as", "at", "be", "but", "by",
+			"for", "if", "in", "into", "is", "it",
+			"no", "not", "of", "on", "or", "such",
+			"that", "the", "their", "then", "there", "these",
+			"they", "this", "to", "was", "will", "with"
+		];
+	}
 	auth(e){
 		var url = $(e.target).attr('href');
 		if (url.indexOf('logout')!=-1) window.localStorage.clear();
@@ -144,16 +153,42 @@ class Apis {
 			},
 			dataType: 'json',
 			success: function(response) {
-				note_data = response.notes;
+				notes_data = response.note;
 				var ndata = {};
 				if (en_status == 'personal'){
-					ndata = response.notes.personal;
+					ndata = response.note.personal;
 				} else {
-					ndata = response.notes.business;
+					ndata = response.note.business;
 				}
 				callback(ndata);
 			}
 		});
+	}
+	word(callback){
+		var that = this;
+		$.ajax({
+			type: 'POST',
+			xhrFields: { withCredentials: true },
+			beforeSend: function(xhr, settings) {
+				xhr.setRequestHeader("X-CSRFToken", that.csrftoken);
+			},
+			url: base_url + '/word/',
+			data: {
+				'access_token': window.localStorage.getItem('access_token'),
+				'business_token': window.localStorage.getItem('business_token')
+			},
+			dataType: 'json',
+			success: function(response) {
+				note_data = response.words;
+				var ndata = {};
+				if (en_status == 'personal'){
+					ndata = response.words.personal;
+				} else {
+					ndata = response.words.business;
+				}
+				callback(ndata);
+			}
+		});		
 	}
 }
 
@@ -231,7 +266,7 @@ class BubbleChart{
 	constructor(){
 	}
 
-	showBubbleChart(){
+	showBubbleChart(root){
 		var diameter = 720,
 		format = d3.format(",d"),
 		color = d3.scale.category20c();
@@ -241,46 +276,45 @@ class BubbleChart{
 			.size([diameter, diameter])
 			.padding(1.5);
 
+		d3.selectAll(".bubble").remove();	
 		var svg = d3.select("#bubble_chart").append("svg")
 			.attr("width", diameter)
 			.attr("height", diameter)
 			.attr("class", "bubble");
 
-		d3.json("flare.json", function(error, root) {
-			if (error) throw error;
+		var node = svg.selectAll(".node")
+			.data(bubble.nodes(classes(root))
+			.filter(function(d) { return !d.children; }))
+			.enter().append("g")
+			.attr("class", "node")
+			.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
-			var node = svg.selectAll(".node")
-				.data(bubble.nodes(classes(root))
-				.filter(function(d) { return !d.children; }))
-				.enter().append("g")
-				.attr("class", "node")
-				.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+		node.append("title")
+			.text(function(d) { return d.className + ": " + format(d.value); });
 
-			node.append("title")
-				.text(function(d) { return d.className + ": " + format(d.value); });
-
-			node.append("circle")
-				.attr("r", function(d) { return d.r; })
-				.style("fill", function(d) { return color(d.packageName); });
-
-			node.append("text")
-				.attr("dy", ".3em")
-				.style("text-anchor", "middle")
-				.text(function(d) { return d.className.substring(0, d.r / 3); });
+		node.append("circle")
+			.attr("r", function(d) { return d.r; })
+			.style("fill", function(d) { 
+				return color(d.packageName); 
 			});
 
-			// Returns a flattened hierarchy containing all leaf nodes under the root.
-			function classes(root) {
-				var classes = [];
+		node.append("text")
+			.attr("dy", ".3em")
+			.style("text-anchor", "middle")
+			.text(function(d) { return d.className.substring(0, d.r / 3); });
 
-				function recurse(name, node) {
-					if (node.children) node.children.forEach(function(child) { recurse(node.name, child); });
-					else classes.push({packageName: name, className: node.name, value: node.size});
-				}
+		// Returns a flattened hierarchy containing all leaf nodes under the root.
+		function classes(root) {
+			var classes = [];
 
-				recurse(null, root);
-				return {children: classes};
+			function recurse(name, node) {
+				if (node.children) node.children.forEach(function(child) { recurse(node.name, child); });
+				else classes.push({packageName: name, className: node.name, value: node.size});
 			}
+
+			recurse(null, root);
+			return {children: classes};
+		}
 
 		d3.select(self.frameElement).style("height", diameter + "px");
 
@@ -291,35 +325,37 @@ function word_cloud(list){
 	var fill = d3.scale.category20();
 
 	var layout = cloud()
-	    .size([500, 500])
-	    .words(list.map(function(d) {
-	      return {text: d, size: 10 + Math.random() * 90, test: "haha"};
-	    }))
-	    .padding(5)
-	    .rotate(function() { return ~~(Math.random() * 2) * 90; })
-	    .font("Impact")
-	    .fontSize(function(d) { return d.size; })
-	    .on("end", draw);
+		.size([500, 500])
+		.words(list.map(function(d) {
+			return {text: d, size: 10 + Math.random() * 90, test: "haha"};
+		}))
+		.padding(5)
+		.rotate(function() { return ~~(Math.random() * 2) * 90; })
+		.font("Impact")
+		.fontSize(function(d) { return d.size; })
+		.on("end", draw);
 
 	layout.start();
 
 	function draw(words) {
-	  d3.select("#word_chart").append("svg")
-	      .attr("width", layout.size()[0])
-	      .attr("height", layout.size()[1])
-	    .append("g")
-	      .attr("transform", "translate(" + layout.size()[0] / 2 + "," + layout.size()[1] / 2 + ")")
-	    .selectAll("text")
-	      .data(words)
-	    .enter().append("text")
-	      .style("font-size", function(d) { return d.size + "px"; })
-	      .style("font-family", "Impact")
-	      .style("fill", function(d, i) { return fill(i); })
-	      .attr("text-anchor", "middle")
-	      .attr("transform", function(d) {
-	        return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
-	      })
-	      .text(function(d) { return d.text; });
+		d3.selectAll(".word_cloud").remove();
+		d3.select("#word_chart").append("svg")
+		.attr("width", layout.size()[0])
+		.attr("height", layout.size()[1])
+		.attr("class", "word_cloud")
+		.append("g")
+			.attr("transform", "translate(" + layout.size()[0] / 2 + "," + layout.size()[1] / 2 + ")")
+		.selectAll("text")
+			.data(words)
+		.enter().append("text")
+			.style("font-size", function(d) { return d.size + "px"; })
+			.style("font-family", "Impact")
+			.style("fill", function(d, i) { return fill(i); })
+			.attr("text-anchor", "middle")
+			.attr("transform", function(d) {
+			return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+		})
+		.text(function(d) { return d.text; });
 	}
 }
 
@@ -332,12 +368,21 @@ function main(){
 	var bar = new BarChart();
 	var bubble = new BubbleChart();
 	api.info(() => {
+
+		// Bubble Chart
 		api.words((data)=>{
-			bubble.showBubbleChart();
-			word_cloud(data[0].content.split(" "));
+			bubble.showBubbleChart(data.most_common_words);
 		});
+
+		//Word Cloud
+		api.word((data)=>{
+			word_cloud(data);
+		});
+
+		//Bar Chart
 		api.notebook((data)=>{
 			bar.draw(data);
+			$('.toggle_status').show();
 		});
 	});
 
@@ -353,18 +398,29 @@ function main(){
 	$('.status').on('click', e => {
 		e.preventDefault();
 		$('.active').removeClass('active');
-		var id = e.target.parentElement.id;
-		en_status = id;
-		var ndata = {};
-		if (en_status == 'personal'){
-			$('.status#personal').addClass('active');
-			ndata = notebook_data.personal;
+		var className = e.target.parentElement.className;
+		if (className.indexOf('personal') != -1){
+			en_status = 'personal';
 		} else {
-			$('.status#business').addClass('active');
-			ndata = notebook_data.business;
+			en_status = 'business';
 		}
-		bar.draw(ndata);
-		// view.showResults(bdata);
+		var n2data = {};
+		var ndata = {};
+		var bdata = {};
+		if (en_status == 'personal'){
+			$('.status.nav_personal').addClass('active');
+			bdata = notebook_data.personal;
+			n2data = notes_data.personal;
+			ndata = note_data.personal;
+		} else {
+			$('.status.nav_business').addClass('active');
+			bdata = notebook_data.business;
+			n2data = notes_data.business;
+			ndata = note_data.business;
+		}
+		bar.draw(bdata);
+		bubble.showBubbleChart(n2data.most_common_words);
+		word_cloud(ndata);
 	});
 }
 
