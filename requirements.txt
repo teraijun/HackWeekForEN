@@ -5,3 +5,4 @@ oauth2==1.5.211
 wsgiref==0.1.2
 django-bootstrap-form==2.0.5
 django-cors-headers
+beautifulsoup4

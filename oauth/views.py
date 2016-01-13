@@ -22,6 +22,7 @@ import io
 import StringIO
 import re
 import random
+from bs4 import BeautifulSoup
 
 # import pycurl
 
@@ -33,6 +34,9 @@ else:
     base_url = 'https://www.evernote.com'
 
 link_to_en = base_url + '/Home.action'
+
+Search_Period = 'updated:day-2'
+
 
 def get_evernote_client(token=None):
     if token:
@@ -158,6 +162,7 @@ def get_info(request):
 
     response = json_response_with_headers({
             'status': 'success',
+            'csrf_token': get_token(request),
             'access_token': token,
             'redirect_url': '/logout/',
             'msg': 'Logout',
@@ -172,34 +177,6 @@ def get_info(request):
             'business_shardId': business_shardId,
     })
     return response
-
-
-def import_note_content(request):
-    try :
-        token = request.COOKIES['access_token']
-        note_id = request.POST['note_id']
-    except Exception as e:
-        return redirect('/login/')
-    url = base_url + '/note/' + note_id
-    # c = pycurl.Curl()
-    # c.setopt(c.URL, url)
-    # c.setopt(c.COOKIE, 'auth='+token)
-    # c.setopt(c.VERBOSE, 1)
-    # buf = StringIO.StringIO()
-    # c.setopt(c.WRITEFUNCTION, buf.write)
-    # c.perform()
-    # content = buf.getvalue()
-    # c.close()
-
-
-    return json_response_with_headers({
-        'status': 'success',
-        'msg': 'content',
-        'note_id': note_id,
-        'content': content,
-        # 'resources': resources
-    })
-
 
 def get_num_of_note(client, token, guid):
     note_store = client.get_note_store()
@@ -227,52 +204,75 @@ def get_num_of_note(client, token, guid):
         print "EDAMNotFoundException: Invalid parent notebook GUID"
         return 0
 
-def import_note(request):
-    try :
-        token = request.COOKIES['access_token']
-        guid = request.COOKIES['guid']
-    except Exception as e:
-        return redirect('/login/')
-    client = get_evernote_client(token=token)
-    note_store = client.get_note_store()
+
+def get_words(request):
+    try:
+        token = request.POST['access_token']
+        business_token = request.POST['business_token']
+        client = get_evernote_client(token=token)
+    except KeyError:
+        return json_response_with_headers({
+            'status': 'redirect',
+            'redirect_url': '/login/',
+            'home_url': link_to_en,
+            'msg': 'Login to use'
+        })
+    notes = {}
+    # for personal
+    personal_notes = get_note_list(client.get_note_store(), token)
+
+    # for business
+    business_notes = []
+    if business_token :
+        business_notes = get_note_list(client.get_business_note_store(), business_token)
+
+    notes = {
+        'personal': personal_notes,
+        'business': business_notes,
+    }
+    response = json_response_with_headers({
+            'status': 'success',
+            'access_token': token,
+            'notes': notes
+    })
+    return response
+
+def get_note_list(note_store, token):
+    notes = []
     note_filter = NoteStore.NoteFilter()
-    note_filter.notebookGuid = guid
     note_filter.order = NoteSortOrder.UPDATED
+    note_filter.words = Search_Period
 
     search_spec = NoteStore.NotesMetadataResultSpec()
     search_spec.includeAttributes = True;
     search_spec.includeCreated = True;
     search_spec.includeUpdated = True;
     search_spec.includeTitle = True;
-
-    notes = []
     try :
         noteList = note_store.findNotesMetadata(token, note_filter, 0, 10, search_spec)
         for n in noteList.notes:
+            content = note_store.getNoteContent(token, n.guid)
+            soup = BeautifulSoup(content.decode('utf-8'), "html.parser")
+            parsed_content = ''
+            for tag in soup.find_all(re.compile('.*')):
+                if tag.string is not None:
+                    if len(parsed_content) == 0:
+                        parsed_content = (tag.string)
+                    else:
+                        parsed_content += " " + (tag.string)
             notes.append({
                 "title": n.title,
                 "note_id": n.guid,
-                "updated": n.updated
+                "updated": n.updated,
+                "content": parsed_content,
             })
 
     except Errors.EDAMUserException, edue:
         print "EDAMUserException:", edue
-        return json_response_with_headers({
-            'status': 'error',
-            'msg': 'user permission error',
-        })
     except Errors.EDAMNotFoundException, ednfe:
         print "EDAMNotFoundException: Invalid parent notebook GUID"
-        return json_response_with_headers({
-            'status': 'error',
-            'msg': 'no find note',
-        })
-    return json_response_with_headers({
-        'status': 'success',
-        'msg': 'notes',
-        'notes': notes,
-    })
 
+    return notes
 
 def json_response_with_headers(data, status=200):
     response_data = data
