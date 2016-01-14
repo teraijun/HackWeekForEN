@@ -44,25 +44,23 @@
                         <a class="page-scroll" href="#page-top"></a>
                     </li>
                     <li class="after_login">
-                        <a class="page-scroll" href="#about">Note Count</a>
+                        <a class="page-scroll" href="#about">Bubble Chart</a>
                     </li>
                     <li class="after_login">
-                        <a class="page-scroll" href="#services">Word Cloud</a>
+                        <a class="page-scroll" href="#services">Bar Chart</a>
                     </li>
-                    <li class="after_login">
+<!--                     <li class="after_login">
                         <a class="page-scroll" href="#contact">Graph</a>
                     </li>
-                    <li class="after_login">
+ -->                    <li class="after_login">
                       <a id="logout" class='auth' href="">SIGN OUT</a>
                     </li>
                 </ul>
             </div>
-            <!-- /.navbar-collapse -->
         </div>
-        <!-- /.container -->
     </nav>
 
-    <!-- Intro Section -->
+    <!-- Word Cloud Section -->
     <section id="intro" class="intro-section">
         <div class="container">
             <div class="row">
@@ -71,22 +69,42 @@
                       <h1>Visualize Your Notes</h1>
                       <a id="login" class='auth btn btn-default' href="">SIGN IN</a>
                     </div>
-                    <div class="bubble_box after_login">
-                      <h1>Bubble Chart</h1>
+
+                    <div class="word_cloud_box after_login">
+                      <h1>Word Cloud</h1>
                       <ul class="nav nav-pills toggle_status">
                         <li class="nav_personal status active"><a href="#">Personal</a></li>
                         <li class="nav_business status"><a href="#">Business</a></li>
-                      </ul>                      
-                      <div id="bubble_chart">
-                      </div>                      
+                      </ul>
+                      <div id="word_chart">
+                      </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- About Section -->
+    <!-- Bubble Section -->
     <section id="about" class="about-section after_login">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                  <div class="bubble_box">
+                    <h1>Bubble Chart</h1>
+                    <ul class="nav nav-pills toggle_status">
+                      <li class="nav_personal status active"><a href="#">Personal</a></li>
+                      <li class="nav_business status"><a href="#">Business</a></li>
+                    </ul>                      
+                    <div id="bubble_chart">
+                    </div>                      
+                  </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bar Section -->
+    <section id="services" class="services-section after_login">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
@@ -107,28 +125,8 @@
         </div>
     </section>
 
-    <!-- Services Section -->
-    <section id="services" class="services-section after_login">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                  <div class="word_cloud_box">
-                    <h1>Word Cloud</h1>
-                    <ul class="nav nav-pills toggle_status">
-                      <li class="nav_personal status active"><a href="#">Personal</a></li>
-                      <li class="nav_business status"><a href="#">Business</a></li>
-                    </ul>
-                    <div id="word_chart">
-                    </div>
-                  </div>
-
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Contact Section -->
-    <section id="contact" class="contact-section after_login">
+<!--     <section id="contact" class="contact-section after_login">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
@@ -137,7 +135,7 @@
             </div>
         </div>
     </section>
-
+ -->
 
 
 <!-- Modal -->
@@ -160,10 +158,6 @@
     </div>
   </div>
  -->
-
-
-
-
 
 
 

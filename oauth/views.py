@@ -23,10 +23,12 @@ import StringIO
 import re
 import random
 from bs4 import BeautifulSoup
-from collections import Counter
-from textblob import TextBlob
+import nltk
+from nltk import word_tokenize, pos_tag
+from nltk.corpus import stopwords
+from nltk.text import Text
+from nltk.book import *
 
-# import pycurl
 
 sandbox = False
 
@@ -246,12 +248,17 @@ def get_word(request):
         })
     notes = {}
     # for personal
-    personal_note = get_note_common_words(client.get_note_store(), token)
+    personal_note_includes_num = get_note_common_words(client.get_note_store(), token)
+    personal_note = []
+    for note in personal_note_includes_num:
+        personal_note.append(note[0])
 
     # for business
-    business_note = {}
+    business_note = []
     if business_token :
-        business_note = get_note_common_words(client.get_business_note_store(), business_token)
+        business_note_includes_num = get_note_common_words(client.get_business_note_store(), business_token)
+        for note in business_note_includes_num:
+            business_note.append(note[0])
 
     words = {
         'personal': personal_note,
@@ -297,7 +304,7 @@ def get_note_common_words(note_store, token):
 
     most_common_words = []
     if len(whole_content) > 0:
-        most_common_words = get_most_common_words(whole_content)
+        most_common_words = get_m_top_words(whole_content)
 
     return most_common_words
 
@@ -373,7 +380,7 @@ def get_notes_list(note_store, token):
 
     most_common_words = []
     if len(whole_content) > 0:
-        most_common_words = get_most_common_words(whole_content)
+        most_common_words = get_m_top_words(whole_content)
     
     most_common_words_obj = convertArrToObject(most_common_words)
 
@@ -383,12 +390,15 @@ def get_notes_list(note_store, token):
     }
     return note
 
-def get_most_common_words(content):
-    textBlob = TextBlob(content)
-    nouns = textBlob.noun_phrases
-
-    top_fifty = Counter(nouns).most_common(50)
-    return top_fifty
+def get_m_top_words(input):
+    stop_words = set(stopwords.words('english'))
+    tokens = nltk.word_tokenize(input)
+    tagged = nltk.pos_tag(tokens)
+    nouns = [item[0] for item in tagged if item[1][0] == 'N' if item[0] not in stop_words]
+    fdist1 = FreqDist(nouns) 
+    top_words = fdist1.most_common(100) 
+    
+    return top_words
 
 def convertArrToObject(arr):
     newArr = []

@@ -325,7 +325,7 @@ function word_cloud(list){
 	var fill = d3.scale.category20();
 
 	var layout = cloud()
-		.size([500, 500])
+		.size([600, 600])
 		.words(list.map(function(d) {
 			return {text: d, size: 10 + Math.random() * 90, test: "haha"};
 		}))
