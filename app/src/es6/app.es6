@@ -408,20 +408,26 @@ function main(){
 		loading.show({container: "#bubble_chart", id: "loader_bubble"});
 		loading.show({container: "#bar_chart", id: "loader_bar"});
 
-		// Bubble Chart
-		api.words((data)=>{
-			bubble.showBubbleChart(data.most_common_words);
-		});
-
 		//Word Cloud
 		api.word((data)=>{
 			word_cloud(data);
 		});
 
+		// Bubble Chart
+		setTimeout(function(){
+			api.words((data)=>{
+				bubble.showBubbleChart(data.most_common_words);
+			});
+		}, 200);
+
+
 		//Bar Chart
-		api.notebook((data)=>{
-			bar.draw(data);
-		});
+		setTimeout(function(){
+			api.notebook((data)=>{
+				bar.draw(data);
+				$('.toggle_status').show();
+			});			
+		}, 500);
 	});
 
 	$('.auth').on('click', e => {
@@ -447,18 +453,18 @@ function main(){
 		var bdata = {};
 		if (en_status == 'personal'){
 			$('.status.nav_personal').addClass('active');
-			if (notebook_data.personal) bdata = notebook_data.personal;
-			if (notes_data.personal) n2data = notes_data.personal;
-			if (note_data.personal) ndata = note_data.personal;
+			bdata = notebook_data.personal;
+			n2data = notes_data.personal;
+			ndata = note_data.personal;
 		} else {
 			$('.status.nav_business').addClass('active');
-			if (notebook_data.business) bdata = notebook_data.business;
-			if (notes_data.business) n2data = notes_data.business;
-			if (note_data.business) ndata = note_data.business;
+			bdata = notebook_data.business;
+			n2data = notes_data.business;
+			ndata = note_data.business;
 		}
-		if (bdata.length > 0) bar.draw(bdata);
-		if (n2data.length > 0) bubble.showBubbleChart(n2data.most_common_words);
-		if (ndata.length > 0) word_cloud(ndata);
+		bar.draw(bdata);
+		bubble.showBubbleChart(n2data.most_common_words);
+		word_cloud(ndata);
 	});
 }
 
