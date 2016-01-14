@@ -19,13 +19,6 @@ var notes_data = {};
 
 class Utils {
 	constructor(){
-		this.stop_words = [
-			"a", "an", "and", "are", "as", "at", "be", "but", "by",
-			"for", "if", "in", "into", "is", "it",
-			"no", "not", "of", "on", "or", "such",
-			"that", "the", "their", "then", "there", "these",
-			"they", "this", "to", "was", "will", "with"
-		];
 	}
 	auth(e){
 		var url = $(e.target).attr('href');
@@ -217,7 +210,8 @@ class BarChart {
 			.orient("left")
 			.ticks(10);
 
-		d3.selectAll("#barchart").remove();	
+		d3.selectAll("#barchart").remove();
+		d3.selectAll("#loader_bar").remove();
 		var svg = d3.select("#bar_chart").append("svg")
 			.attr("id", "barchart")
 			.attr("width", width + margin.left + margin.right)
@@ -276,7 +270,8 @@ class BubbleChart{
 			.size([diameter, diameter])
 			.padding(1.5);
 
-		d3.selectAll(".bubble").remove();	
+		d3.selectAll(".bubble").remove();
+		d3.selectAll("#loader_bubble").remove();
 		var svg = d3.select("#bubble_chart").append("svg")
 			.attr("width", diameter)
 			.attr("height", diameter)
@@ -339,6 +334,7 @@ function word_cloud(list){
 
 	function draw(words) {
 		d3.selectAll(".word_cloud").remove();
+		d3.selectAll("#loader_word").remove();
 		d3.select("#word_chart").append("svg")
 		.attr("width", layout.size()[0])
 		.attr("height", layout.size()[1])
@@ -359,6 +355,45 @@ function word_cloud(list){
 	}
 }
 
+class Loading{
+	constructor(){
+	}
+	show(config){
+		var that = this;
+		var width = 960, height = 500;
+		var radius = Math.min(width, height) / 3;
+		var tau = 2 * Math.PI;
+
+		var arc = d3.svg.arc()
+			.innerRadius(radius*0.5)
+			.outerRadius(radius*0.9)
+			.startAngle(0);
+
+		var svg = d3.select(config.container).append("svg")
+			.attr("id", config.id)
+			.attr("width", width)
+			.attr("height", height)
+			.append("g")
+			.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+
+		var background = svg.append("path")
+			.datum({endAngle: 0.33*tau})
+			.style("fill", "#4D4D4D")
+			.attr("d", arc)
+			.call(spin, 1500)
+
+		function spin(selection, duration) {
+			var that = this;
+			selection.transition()
+				.ease("linear")
+				.duration(duration)
+				.attrTween("transform", function() {
+					return d3.interpolateString("rotate(0)", "rotate(360)");
+				});
+			setTimeout(function() { spin(selection, duration); }, duration);
+		}
+	}
+}
 
 
 function main(){
@@ -367,7 +402,11 @@ function main(){
 	var utils = new Utils();
 	var bar = new BarChart();
 	var bubble = new BubbleChart();
+	var loading = new Loading();
 	api.info(() => {
+		loading.show({container: "#word_chart", id: "loader_word"});
+		loading.show({container: "#bubble_chart", id: "loader_bubble"});
+		loading.show({container: "#bar_chart", id: "loader_bar"});
 
 		// Bubble Chart
 		api.words((data)=>{
@@ -382,7 +421,6 @@ function main(){
 		//Bar Chart
 		api.notebook((data)=>{
 			bar.draw(data);
-			$('.toggle_status').show();
 		});
 	});
 
@@ -409,18 +447,18 @@ function main(){
 		var bdata = {};
 		if (en_status == 'personal'){
 			$('.status.nav_personal').addClass('active');
-			bdata = notebook_data.personal;
-			n2data = notes_data.personal;
-			ndata = note_data.personal;
+			if (notebook_data.personal) bdata = notebook_data.personal;
+			if (notes_data.personal) n2data = notes_data.personal;
+			if (note_data.personal) ndata = note_data.personal;
 		} else {
 			$('.status.nav_business').addClass('active');
-			bdata = notebook_data.business;
-			n2data = notes_data.business;
-			ndata = note_data.business;
+			if (notebook_data.business) bdata = notebook_data.business;
+			if (notes_data.business) n2data = notes_data.business;
+			if (note_data.business) ndata = note_data.business;
 		}
-		bar.draw(bdata);
-		bubble.showBubbleChart(n2data.most_common_words);
-		word_cloud(ndata);
+		if (bdata.length > 0) bar.draw(bdata);
+		if (n2data.length > 0) bubble.showBubbleChart(n2data.most_common_words);
+		if (ndata.length > 0) word_cloud(ndata);
 	});
 }
 

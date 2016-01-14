@@ -354,7 +354,7 @@ def get_notes_list(note_store, token):
     search_spec.includeUpdated = True;
     search_spec.includeTitle = True;
     try :
-        noteList = note_store.findNotesMetadata(token, note_filter, 0, 10, search_spec)
+        noteList = note_store.findNotesMetadata(token, note_filter, 0, 100, search_spec)
         for n in noteList.notes:
             content = note_store.getNoteContent(token, n.guid)
             soup = BeautifulSoup(content.decode('utf-8'), "html.parser")
