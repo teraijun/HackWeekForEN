@@ -1,0 +1,264 @@
+Skip to content
+This repository  
+Search
+Pull requests
+Issues
+Gist
+ @teraijun
+ Unwatch 23
+  Star 3
+ Fork 0 Nikkei/data-nikkei-com PRIVATE
+ Code  Issues 18  Pull requests 14  Wiki  Pulse  Graphs  Settings
+Tree: d9621662c0 Find file Copy pathdata-nikkei-com/static/prj2/asia-economy/css/c2.css
+6891340  18 days ago
+@ashmz ashmz change legend position, commentOut transition for c1
+1 contributor
+RawBlameHistory     246 lines (235 sloc)  4.74 KB
+/* c2
+-------------------------------------------------- */
+/* c2 */
+.c2 {
+    position: relative;
+}
+
+/* graph-area */
+.c2.graph-box640 .graph-area,
+.c2.graph-box980 .graph-area,
+.c2.graph-boxFull .graph-area {
+    height: 590px;
+    background-color: #ffffff;
+    border: 1px solid rgba(0,0,0,.04);
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+/*@media (max-height: 768px) {
+    .c1.graph-box640 .graph-area,
+    .c1.graph-box980 .graph-area,
+    .c1.graph-boxFull .graph-area {
+        height: 590px;
+    }
+}*/
+@media (max-width: 980px) {
+    .c2.graph-box640 .graph-area,
+    .c2.graph-box980 .graph-area,
+    .c2.graph-boxFull .graph-area {
+        border-radius: 0;
+    }
+}
+@media (max-width: 480px) {
+    .c2.graph-box640 .graph-area,
+    .c2.graph-box980 .graph-area,
+    .c2.graph-boxFull .graph-area {
+    overflow: auto;
+        height: 390px;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+.c2.graph-box640 .graph-area-inner,
+.c2.graph-box980 .graph-area-inner,
+.c2.graph-boxFull .graph-area-inner {
+    width: 100%;
+    height: 100%;
+}
+@media (max-width: 480px) {
+    .c2.graph-box640 .graph-area-inner,
+    .c2.graph-box980 .graph-area-inner,
+    .c2.graph-boxFull .graph-area-inner {
+        width: 200%;
+        height: 384px;
+    }
+}
+
+
+/* line */
+#chart2 .population_line {
+    fill: none;
+    stroke-width: 2px;
+    stroke: blue;
+}
+#chart2 .gpd_line {
+    fill: none;
+    stroke-width: 2px;
+    stroke: green;
+}
+
+/* axis */
+#chart2 .axis .domain {
+    fill: none;
+}
+#chart2 .axis text {
+    fill: #444444;
+    font-size: 13px;
+}
+#chart2 .y.axis text {
+    font-family: 'Oswald', sans-serif;
+    font-size: 16px;
+    font-weight: 400; 
+}
+#chart2 .y.axis text.axisLabel {
+    font-size: 14px;
+}
+
+#chart2 .grid line {
+    fill: none;
+    stroke: #ddd;
+    stroke-dasharray: 3,3;
+    shape-rendering: crispEdges;
+}
+@media (max-width: 768px) {
+    #chart2 .axis text {
+        font-size: 11px;
+    }
+}
+@media (max-width: 480px) {
+    #chart2 .y.axis text {
+        font-size: 12px;
+    }
+    #chart2 .y.axis text.axisLabel {
+        font-size: 10px;
+    }
+}
+
+/* rect */
+#chart2 .layer rect {
+    opacity: .5;
+}
+#chart2 .layer rect:hover {
+    opacity: 1;
+}
+
+/* legend */
+.c2 ul.graph-legend {
+    position: absolute;
+    z-index: 9;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin: 16px auto 0;
+}
+.c2 ul.graph-legend li.legend01:before { background-color: #fb5a74; }
+.c2 ul.graph-legend li.legend02:before { background-color: #00bfd1; }
+.c2 ul.graph-legend li.legend03:before { background-color: #b9e22b; }
+.c2 ul.graph-legend li.legend04:before { background-color: #cccccc; }
+@media (max-width: 480px) {
+    .c2 ul.graph-legend {
+        margin: 20px auto 0;
+        font-size: 12px;
+    }
+}
+
+
+
+/* tooltip */
+.chart2-tooltip {
+    width: 168px;
+    position: absolute;
+    z-index: 10;
+    visibility: hidden;
+    padding: 0;
+    color: #222222;
+    font-size: 11px;
+    border: 0;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    -webkit-box-shadow: rgba(0, 0, 0, 0.247059) 0px 1px 3px;
+    -moz-box-shadow: rgba(0, 0, 0, 0.247059) 0px 1px 3px;
+    -ms-box-shadow: rgba(0, 0, 0, 0.247059) 0px 1px 3px;
+    box-shadow: rgba(0, 0, 0, 0.247059) 0px 1px 3px;
+    background-color: #ffffff;
+    opacity: 1;
+    box-sizing: border-box;
+    pointer-events: none;
+}
+.chart2-tooltip .tooltip_container {
+    padding: 16px;
+    background-color: #ffffff;
+    text-align: center;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+}
+.chart2-tooltip .tooltip_container:after {
+    content: "";
+    -webkit-box-shadow: rgba(0, 0, 0, 0.247059) 0px 1px 3px;
+    -moz-box-shadow: rgba(0, 0, 0, 0.247059) 0px 1px 3px;
+    -ms-box-shadow: rgba(0, 0, 0, 0.247059) 0px 1px 3px;
+    box-shadow: rgba(0, 0, 0, 0.247059) 0px 1px 3px;
+    position: absolute;
+    bottom: -5px;
+    height: 10px;
+    left: 50%;
+    margin-left: -5px;
+    width: 10px;
+    -webkit-transform: rotate(45deg) scale(1);
+    -moz-transform: rotate(45deg) scale(1);
+    -ms-transform: rotate(45deg) scale(1);
+    transform: rotate(45deg) scale(1);
+    z-index: -1;
+    right: auto;
+    top: auto;
+    margin-top: auto;
+    background-color: rgb(255, 255, 255);
+}
+.chart2-tooltip h4 {
+    font-size: 14px;
+    font-weight: bold;
+    margin: 0 0 8px;
+    padding: 0 0 8px;
+    border-bottom: 1px solid #e8e8e8;
+}
+.chart2-tooltip h5 {
+    font-size: 14px;
+    font-weight: bold;
+    margin: 0 auto;
+}
+.chart2-tooltip .amount_title {
+    display: inline-block;
+    width: 88px;
+    font-size: 14px;
+    text-align: center;
+    line-height: 1;
+    /*font-weight: bold;*/
+    margin: 0;
+}
+.chart2-tooltip .amount_value {
+    display: inline-block;
+    width: 48px;
+    font-size: 14px;
+    text-align: right;
+    line-height: 1;
+    font-weight: bold;
+    margin: 6px 0 0 0;
+}
+.chart2-tooltip .amount_value span {
+    font-size: 10px;
+    padding-left: 4px;
+    font-weight: normal;
+}
+@media (max-width: 480px) {
+    .chart2-tooltip {
+        width: 140px;
+    }
+    .chart2-tooltip .tooltip_container {
+        padding: 8px;
+    }
+    .chart2-tooltip h4 {
+        font-size: 12px;
+        margin: 0 0 4px;
+    }
+    .chart2-tooltip h5 {
+        font-size: 12px;
+    }
+    .chart2-tooltip .amount_title {
+        width: 80px;
+        font-size: 12px;
+    }
+    .chart2-tooltip .amount_value {
+        width: 44px;
+        font-size: 12px;
+    }
+}
+Status API Training Shop Blog About Pricing
+© 2016 GitHub, Inc. Terms Privacy Security Contact Help

@@ -1,0 +1,264 @@
+/* c3
+-------------------------------------------------- */
+/* graph-area */
+.c3.graph-box640 .graph-area,
+.c3.graph-box980 .graph-area,
+.c3.graph-boxFull .graph-area {
+    height: 590px;
+    background-color: #ffffff;
+    border: 1px solid rgba(0,0,0,.04);
+    border-radius: 8px;
+}
+@media (max-width: 980px) {
+    .c3.graph-box640 .graph-area,
+    .c3.graph-box980 .graph-area,
+    .c3.graph-boxFull .graph-area {
+        border-radius: 0;
+    }
+}
+@media (max-width: 480px) {
+    .c3.graph-box640 .graph-area,
+    .c3.graph-box980 .graph-area,
+    .c3.graph-boxFull .graph-area {
+        height: 390px;
+    }
+}
+
+/* legend */
+.c3 ul.graph-legend {
+    margin: 47px auto -43px;
+}
+.c3 ul.graph-legend li:before { border-radius: 8px; }
+.c3 ul.graph-legend li.legend01:before { background-color: #586266; }
+.c3 ul.graph-legend li.legend02:before { background-color: #8c7386; }
+.c3 ul.graph-legend li.legend03:before { background-color: #ff8c64; }
+.c3 ul.graph-legend li.legend04:before { background-color: #00bfd1; }
+.c3 ul.graph-legend li.legend05:before { background-color: #ff5c5e; }
+.c3 ul.graph-legend li.legend06:before { background-color: #4d8f9e; }
+.c3 ul.graph-legend li.legend07:before { background-color: #a1cf00; }
+@media (max-width: 480px) {
+    .c3 ul.graph-legend {
+        font-size: 12px;
+    }
+    .c3 ul.graph-legend li {
+        line-height: 1.4;
+    }
+}
+@media (max-width: 405px) {
+    .c3 ul.graph-legend {
+        margin: 59px auto -55px;
+    }
+}
+
+
+/* axis */
+#chart3 .axis .domain {
+    fill: none;
+}
+#chart3 .axis text {
+    fill: #444444;
+    font-size: 13px;
+}
+#chart3 .y.axis text {
+    font-family: 'Oswald', sans-serif;
+    font-size: 16px;
+    font-weight: 400; 
+}
+#chart3 .y.axis text.axisLabel {
+    font-size: 14px;
+}
+#chart3 .grid line {
+    fill: none;
+    stroke: #ddd;
+    stroke-dasharray: 3,3;
+    shape-rendering: crispEdges;
+}
+#chart3 .x.axis .domain {
+    fill:none;
+    stroke:none;
+}
+@media (max-width: 768px) {
+    #chart3 .axis text {
+        font-size: 11px;
+    }
+}
+@media (max-width: 480px) {
+    #chart3 .y.axis text {
+        font-size: 12px;
+    }
+    #chart3 .y.axis text.axisLabel {
+        font-size: 10px;
+    }
+}
+
+#chart3 .hrLine{
+    stroke: #666666;
+    shape-rendering: crispEdges;
+}
+
+/* legend-area */
+#chart3 .legend-area {
+    font-size: 13px;
+}
+#chart3 .legend-area line {
+    stroke: #cccccc;
+    stroke-dasharray: 2,2;
+}
+#chart3 .legend-area text {
+    fill: #aaaaaa;
+}
+@media (max-width: 480px) {
+    #chart3 .legend-area {
+        font-size: 11px;
+    }
+}
+
+/* year */
+#chart3 .yearArea {
+    /*font-family: 'Oswald', sans-serif;*/
+    font-family: 'Ubuntu Condensed', sans-serif;
+    font-size: 120px;
+    opacity: .1;
+    pointer-events: none;
+}
+#chart3 .yearUnit {
+    font-size: 32px;
+}
+@media (max-width: 480px) {
+    #chart3 .yearArea {
+        font-size: 64px;
+    }
+}
+
+/* circle */
+#chart3 .countryCircle circle {
+    stroke-opacity: .4;
+    fill-opacity: .4;
+}
+#chart3 .countryCircle circle:hover {
+    stroke-opacity: .8;
+    fill-opacity: .8;
+}
+#chart3 .countryCircle text {
+    fill: #333333;
+    font-size: 13px;
+    opacity: .8;
+    pointer-events: none;
+}
+#chart3 .countryCircle.estimat circle {
+    fill-opacity: .2;
+    stroke-dasharray: 3,3;
+}
+#chart3 .countryCircle.estimat circle:hover {
+    fill-opacity: .6;
+}
+@media (max-width: 480px) {
+    #chart3 .countryCircle text {
+        font-size: 11px;
+    }
+}
+
+
+
+
+/* tooltip */
+.chart3-tooltip {
+    width: 200px;
+    position: absolute;
+    z-index: 10;
+    visibility: hidden;
+    padding: 0;
+    color: #222222;
+    font-size: 11px;
+    border: 0;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    -webkit-box-shadow: rgba(0, 0, 0, 0.247059) 0px 1px 3px;
+    -moz-box-shadow: rgba(0, 0, 0, 0.247059) 0px 1px 3px;
+    -ms-box-shadow: rgba(0, 0, 0, 0.247059) 0px 1px 3px;
+    box-shadow: rgba(0, 0, 0, 0.247059) 0px 1px 3px;
+    background-color: #ffffff;
+    opacity: 1;
+    box-sizing: border-box;
+    pointer-events: none;
+}
+.chart3-tooltip .tooltip_container {
+    padding: 16px;
+    background-color: #ffffff;
+    text-align: center;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+}
+.chart3-tooltip .tooltip_container:after {
+    content: "";
+    -webkit-box-shadow: rgba(0, 0, 0, 0.247059) 0px 1px 3px;
+    -moz-box-shadow: rgba(0, 0, 0, 0.247059) 0px 1px 3px;
+    -ms-box-shadow: rgba(0, 0, 0, 0.247059) 0px 1px 3px;
+    box-shadow: rgba(0, 0, 0, 0.247059) 0px 1px 3px;
+    position: absolute;
+    bottom: -5px;
+    height: 10px;
+    left: 50%;
+    margin-left: -5px;
+    width: 10px;
+    -webkit-transform: rotate(45deg) scale(1);
+    -moz-transform: rotate(45deg) scale(1);
+    -ms-transform: rotate(45deg) scale(1);
+    transform: rotate(45deg) scale(1);
+    z-index: -1;
+    right: auto;
+    top: auto;
+    margin-top: auto;
+    background-color: rgb(255, 255, 255);
+}
+.chart3-tooltip h4 {
+    font-size: 14px;
+    font-weight: bold;
+    margin: 0 0 8px;
+    padding: 0 0 8px;
+    border-bottom: 1px solid #e8e8e8;
+}
+.chart3-tooltip .amount_title {
+    display: inline-block;
+    width: 44px;
+    font-size: 14px;
+    text-align: left;
+    line-height: 1;
+    /*font-weight: bold;*/
+    margin: 0;
+}
+.chart3-tooltip .amount_value {
+    display: inline-block;
+    width: 116px;
+    font-size: 14px;
+    text-align: right;
+    line-height: 1;
+    font-weight: bold;
+    margin: 6px 0 0 0;
+}
+.chart3-tooltip .amount_value span {
+    font-size: 10px;
+    padding-left: 4px;
+    font-weight: normal;
+}
+@media (max-width: 480px) {
+    .chart3-tooltip {
+        width: 164px;
+    }
+    .chart3-tooltip .tooltip_container {
+        padding: 8px;
+    }
+    .chart3-tooltip h4 {
+        font-size: 12px;
+        margin: 0 0 4px;
+    }
+    .chart3-tooltip .amount_title {
+        font-size: 12px;
+    }
+    .chart3-tooltip .amount_value {
+        width: 104px;
+        font-size: 12px;
+    }
+}

@@ -14,10 +14,17 @@
   <!-- Optional theme -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
 
-  <!-- <link type="text/css" rel="stylesheet" href="src/css/style.css"/> -->
-  <link type="text/css" rel="stylesheet" href="/css/style.css"/>
+  <!-- Slider css -->
+  <link rel="stylesheet" href="/css/bootstrap-slider.min.css">
+
   <!-- Custom CSS -->
   <link rel="stylesheet" href="/css/scrolling-nav.css" />
+  <!-- <link type="text/css" rel="stylesheet" href="src/css/style.css"/> -->
+  <link type="text/css" rel="stylesheet" href="/css/style.css"/>
+  <link rel="stylesheet" href="/css/project_style.css" />
+  <link rel="stylesheet" href="/css/c1.css" />
+  <link rel="stylesheet" href="/css/c2.css" />
+  <link rel="stylesheet" href="/css/c3.css" />
 
 </head>
 
@@ -44,21 +51,20 @@
                         <a class="page-scroll" href="#page-top"></a>
                     </li>
                     <li class="after_login">
-                        <a class="page-scroll" href="#about">Bubble Chart</a>
+                        <a class="page-scroll" href="#about">100 Notes</a>
+                    </li>
+
+                    <li class="after_login">
+                        <a class="page-scroll" href="#services">Notebooks</a>
                     </li>
                     <li class="after_login">
-                        <a class="page-scroll" href="#services">Bar Chart</a>
-                    </li>
-<!--                     <li class="after_login">
-                        <a class="page-scroll" href="#contact">Graph</a>
-                    </li>
- -->                    <li class="after_login">
                       <a id="logout" class='auth' href="">SIGN OUT</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
+
 
     <!-- Word Cloud Section -->
     <section id="intro" class="intro-section">
@@ -71,7 +77,7 @@
                     </div>
 
                     <div class="word_cloud_box after_login">
-                      <h1>Word Cloud</h1>
+                      <h1>A Note</h1>
                       <ul class="nav nav-pills toggle_status">
                         <li class="nav_personal status active"><a href="#">Personal</a></li>
                         <li class="nav_business status"><a href="#">Business</a></li>
@@ -90,7 +96,7 @@
             <div class="row">
                 <div class="col-lg-12">
                   <div class="bubble_box">
-                    <h1>Bubble Chart</h1>
+                    <h1>100 Notes</h1>
                     <ul class="nav nav-pills toggle_status">
                       <li class="nav_personal status active"><a href="#">Personal</a></li>
                       <li class="nav_business status"><a href="#">Business</a></li>
@@ -103,21 +109,29 @@
         </div>
     </section>
 
-    <!-- Bar Section -->
+    <!-- Tree Map Section -->
     <section id="services" class="services-section after_login">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
-                  <div class="bar_box">
-                    <h1>Bar Chart</h1>
+                  <div class="tree_box">
+                    <h1>Notebooks</h1>
                     <ul class="nav nav-pills toggle_status">
-                      <li class="nav_personal status active"><a href="#">Personal</a></li>
                       <li class="nav_business status"><a href="#">Business</a></li>
-                      <div id="menu">
-                        <button id="switch" class="normal">Switch</button>
+                     </ul>
+
+                    <div class="graph-boxFull c1">
+                      <div class="graph-area">
+                        <svg id="tree_map"></svg>
+                        <div id='c1-year'></div>
                       </div>
-                    </ul>
-                    <div id="bar_chart">
+                      <div class="ui-group">
+                        <input id="c1-slider" data-slider-id="slider-samplec1" type="text" data-slider-min="1" data-slider-max="4" data-slider-step="1" data-slider-value="1" data="value: '1'" value="1" style="display: none;">
+                        <button type="button" class="btn btn-default" id="c1-anim-button">
+                          <span id="c1-stop-button" class="glyphicon glyphicon-pause anim-buttons" aria-hidden="true"></span>
+                          <span id="c1-play-button" class="glyphicon glyphicon-play anim-buttons" aria-hidden="true"></span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -125,44 +139,12 @@
         </div>
     </section>
 
-    <!-- Contact Section -->
-<!--     <section id="contact" class="contact-section after_login">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <h1>Graph</h1>
-                </div>
-            </div>
-        </div>
-    </section>
- -->
-
-
-<!-- Modal -->
-<!--
-  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="myModalLabel">Modal title</h4>
-        </div>
-        <div class="modal-body">
-          ...
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Save changes</button>
-        </div>
-      </div>
-    </div>
-  </div>
- -->
-
 
 
   <!-- <script src="src/js/bundle.js"></script>-->
   <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/6.0.5/bootstrap-slider.min.js"></script>
   <script src="/js/bundle.js"></script>
   <script src="/js/jquery.easing.min.js"></script>
   <script src="/js/scrolling-nav.js"></script>
