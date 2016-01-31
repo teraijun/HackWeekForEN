@@ -11,4 +11,5 @@ urlpatterns = patterns(
     url(r"^notebook/$", "oauth.views.get_notebook", name="evernote_notebook"),
     url(r"^word/$", "oauth.views.get_word", name="evernote_word"),
     url(r"^words/$", "oauth.views.get_words", name="evernote_words"),
+    url(r"^year/$", "oauth.views.get_words_year", name="evernote_words_year"),
 )

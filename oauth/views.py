@@ -28,6 +28,7 @@ from nltk import word_tokenize, pos_tag
 from nltk.corpus import stopwords
 from nltk.text import Text
 from nltk.book import *
+import gettrends06
 
 
 sandbox = False
@@ -41,6 +42,30 @@ link_to_en = base_url + '/Home.action'
 
 # Search_Period = 'updated:month'
 Search_Period = 'updated:day-30'
+
+search_query = [
+    'created:month-2',
+    'created:month-5 -created:month-2',
+    'created:month-8 -created:month-5',
+    'created:month-11 -created:month-8',
+]
+
+# search_query = [
+#     'created:month -created:month-1',
+#     'created:month-1 -created:month',
+#     'created:month-2 -created:month-1',
+#     'created:month-3 -created:month-2',
+#     'created:month-4 -created:month-3',
+#     'created:month-5 -created:month-4',
+#     'created:month-6 -created:month-5',
+#     'created:month-7 -created:month-6',
+#     'created:month-8 -created:month-7',
+#     'created:month-9 -created:month-8',
+#     'created:month-10 -created:month-9',
+#     'created:month-11 -created:month-10',
+#     'created:month-12 -created:month-11',
+# ]
+
 
 stop_words = [
     "a", "an", "and", "are", "as", "at", "be", "but", "by",
@@ -81,7 +106,6 @@ def callback(request):
         callbackUrl = request.COOKIES['_redirect_url']
     except Exception as e :
         callbackUrl = 'http://%s/' % (request.get_host())
-    print callbackUrl
     response = redirect(callbackUrl)
     if len(access_token) > 0 :
         response.set_cookie('access_token', access_token)
@@ -97,7 +121,6 @@ def login(request):
     callbackUrl += 'callback/'
     client = get_evernote_client()
     request_token = client.get_request_token(callbackUrl)
-    print request_token
     response = redirect(client.get_authorize_url(request_token))
     response.set_cookie('_redirect_url', redirectUrl)
     response.set_cookie('oauth_token', request_token['oauth_token'])
@@ -118,28 +141,16 @@ def get_info(request):
     user_store = client.get_user_store()
     user_info = user_store.getUser()
 
-    user_id = user_info.id
     if user_info.accounting.businessId :
         is_evernote_business = True
     else :
         is_evernote_business = False
 
-    if user_info.accounting.businessRole == 1:
-        is_evernote_business_admin = True
-    else :
-        is_evernote_business_admin = False
-
     if is_evernote_business:
-        business_user_id = user_info.accounting.businessId
         business = user_store.authenticateToBusiness(token=token)
         business_token = business.authenticationToken
-        business_expiration = business.expiration
-        business_shardId = business.user.shardId
     else:
-        business_user_id = ''
         business_token = ''
-        business_expiration = ''
-        business_shardId = ''
 
     response = json_response_with_headers({
             'status': 'success',
@@ -148,13 +159,8 @@ def get_info(request):
             'redirect_url': '/logout/',
             'msg': 'Logout',
             'home_url': link_to_en,
-            'user_id': user_id,
             'is_evernote_business': is_evernote_business,
-            'is_evernote_business_admin': is_evernote_business_admin,
-            'business_user_id': business_user_id,
             'business_token': business_token,
-            'business_expiration': business_expiration,
-            'business_shardId': business_shardId,
     })
     return response
 
@@ -196,43 +202,85 @@ def get_notebook(request):
             'msg': 'Login to use'
         })    
     note_store = client.get_note_store()
-    listNotebooks = note_store.listNotebooks()
-    personal_notebook = []
-    for listNotebook in listNotebooks:
-        count = get_num_of_note(note_store, token, listNotebook.guid)
-        personal_notebook.append({
-            'guid': listNotebook.guid,
-            'name': listNotebook.name,
-            'count': count,
-            'created': listNotebook.serviceCreated,
-            'updated': listNotebook.serviceUpdated,
-        })
 
-    business_notebook = []
+
+    note_filter = NoteStore.NoteFilter()
+    note_filter.order = NoteSortOrder.UPDATED
+
+    personal_note_count = []
+    personal_note_counts = note_store.findNoteCounts(token, note_filter, False)
+    for notebook in personal_note_counts.notebookCounts:
+        obj = {}
+        for month in search_query:
+            count = get_month_note_count(note_store, token, notebook, month)
+            obj[month] = count
+
+        name = note_store.getNotebook(token, notebook).name
+        obj['id'] = notebook
+        obj['name'] = name
+        obj['industry'] = 'Trading'
+        obj['count'] = personal_note_counts.notebookCounts[notebook]
+        personal_note_count.append(obj)
+
+    personal_note = {
+        'name': 'rank',
+        'children': personal_note_count
+    }
+
+    business_note_count = []
     if business_token:
         business_note_store = client.get_business_note_store()
-        businessListNotebooks = business_note_store.listNotebooks(business_token)
-        for listNotebook in businessListNotebooks:
-            count = get_num_of_note(business_note_store, business_token, listNotebook.guid)
-            business_notebook.append({
-                'guid': listNotebook.guid,
-                'name': listNotebook.name,
-                'count': count,
-                'created': listNotebook.serviceCreated,
-                'updated': listNotebook.serviceUpdated,
-            })
+        business_note_counts = business_note_store.findNoteCounts(business_token, note_filter, False)
+        for notebook in business_note_counts.notebookCounts:
+            obj = {}
+            for month in search_query:
+                count = get_month_note_count(business_note_store, business_token, notebook, month)
+                obj[month] = count
 
-    notebook = {
-        'personal': personal_notebook,
-        'business': business_notebook
+            name = business_note_store.getNotebook(business_token, notebook).name
+            obj['id'] = notebook
+            obj['name'] = name
+            obj['industry'] = 'Notebook'
+            obj['count'] = business_note_counts.notebookCounts[notebook]
+            business_note_count.append(obj)
+
+    business_note = {
+        'name': 'rank',
+        'children': business_note_count        
     }
+
+    note_count = {
+        'personal': personal_note,
+        'business': business_note
+    }
+    
     response = json_response_with_headers({
-            'status': 'success',
-            'access_token': token,
-            'notebook': notebook,
-            'business_token': business_token,
+        'notebook': note_count
     })
+    
     return response
+
+def get_month_note_count(note_store, token, guid, month):
+    note_filter = NoteStore.NoteFilter()
+    note_filter.order = NoteSortOrder.UPDATED
+    note_filter.words = month
+    note_filter.notebookGuid = guid
+
+    search_spec = NoteStore.NotesMetadataResultSpec()
+    search_spec.includeAttributes = True
+    search_spec.includeCreated = True
+    search_spec.includeUpdated = True
+    search_spec.includeTitle = True
+    count = 0
+    try :
+        noteList = note_store.findNotesMetadata(token, note_filter, 0, 100, search_spec)
+        count = len(noteList.notes)
+    except Errors.EDAMUserException, edue:
+        print "EDAMUserException:", edue
+    except Errors.EDAMNotFoundException, ednfe:
+        print "EDAMNotFoundException: Invalid parent notebook GUID"
+
+    return count
 
 def get_word(request):
     try:
@@ -389,6 +437,40 @@ def get_notes_list(note_store, token):
         'most_common_words': most_common_words_obj
     }
     return note
+
+def get_words_year(request):
+    try:
+        token = request.POST['access_token']
+        business_token = request.POST['business_token']
+        client = get_evernote_client(token=token)
+    except KeyError:
+        return json_response_with_headers({
+            'status': 'redirect',
+            'redirect_url': '/login/',
+            'home_url': link_to_en,
+            'msg': 'Login to use'
+        })
+    # notes = {}
+    # # for personal
+    # personal_note = get_notes_list(client.get_note_store(), token)
+
+    # # for business
+    # business_note = {}
+    # if business_token :
+    #     business_note = get_notes_list(client.get_business_note_store(), business_token)
+
+    # notes = {
+    #     'personal': personal_note,
+    #     'business': business_note
+    # }
+    response = json_response_with_headers({
+            'status': 'success',
+            'access_token': token,
+            # 'note': notes
+    })
+    return response
+
+
 
 def get_m_top_words(input):
     stop_words = set(stopwords.words('english'))

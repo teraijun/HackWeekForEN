@@ -205,7 +205,8 @@ class Apis {
 				// } else {
 				// 	ndata = response.note.business;
 				// }
-				callback(ndata);
+				// callback(ndata);
+				console.log(response);
 			}
 		});
 	}
