@@ -1775,9 +1775,9 @@ function main(){
 
 
 		// Word Cloud
-		api.word((data)=>{
-			word_cloud.showCloud(data);
-		});
+		// api.word((data)=>{
+		// 	word_cloud.showCloud(data);
+		// });
 
 		// Bubble Chart
 		setTimeout(function(){
@@ -1788,10 +1788,12 @@ function main(){
 
 		// Bar Chart
 		setTimeout(function(){
-			// api.notebook((data)=>{
-			api.wordsForYear((data)=>{
+			api.notebook((data)=>{
 				stackedBarChart();
 				$('.toggle_status').show();
+				api.wordsForYear((data)=>{
+					console.log(data);
+				});
 			});
 		}, 500);
 	});

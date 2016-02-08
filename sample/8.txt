@@ -1,0 +1,57 @@
+Peer-to-peer (P2P) lending became one of the hottest industries in fintech — or any other any industry — in 2015. Companies raised large venture rounds, investors found unicorns and there were even a couple of IPOs.
+
+Will 2016 continue this trend, or will the P2P lending bubble finally pop?
+
+Here are some of the highlights of 2015:
+
+Lending Club went public in December 2014 at a $9 billion valuation; stock traded as high as $24 in 2015, with a market cap around $15 billion.
+OnDeck went public at $20 in December 2014, and traded as high as $28, with a market cap around $1.8 billion.
+Prosper raised $165 million at a $1.9 billion valuation (April 2015).
+Funding Circle raised $150 million around a $1 billion valuation (April 2015).
+Avant raised a $325 million round around a $2 billion valuation (September 2015).
+SoFi raised a $1 billion round at around a $3.5 billion valuation (September 2015).
+Kabbage raised $135 million at a $1 billion valuation (October 2015) . Disclosure — I’m an advisor to Lumia Capital which is an investor in Kabbage.
+LendUp raised $150 million at an unknown valuation (Jan, 2016)
+Prosper just announced its numbers for 2015. In the last year, Prosper originated $3.7 billion in loans (with $1.15 billion coming in a record-breaking Q4). This growth was double that of the previous year, with revenues of more than $200 million in 2015 — up from $81 million in 2014.
+
+Lending Club hasn’t released their 2015 numbers yet, but it’s estimated they will have originated more than $8 billion in loans, as they had already done $5.8 billion in the first three quarters of 2015.
+
+While Lending Club and Prosper were disrupting the personal lending space, companies like OnDeck, Kabbage and Funding Circle became brand names in the small-business lending space. SoFi went after the student loan space and has quickly become the largest provider of student loan refinancing.
+
+The Creation of P2P Lending
+
+After the financial crisis in 2008, banks started tightening their consumer lending policies. The Dodd-Frank Wall Street Reform and Consumer Protection Act passed in 2010 added even more restrictions. The days of acquiring cheap, quick loans were over, and consumers found it very difficult to get loans, even if they had good credit.
+
+There are several factors that will determine if the rapid growth in peer-to-peer lending will continue.
+This inefficiency led to the emergence of online lending sites like Prosper and Lending Club, the first large players to really emerge in the consumer space. They offered consumers a chance to get loans easily and quickly. To minimize risk, they only focused on consumers with high credit scores, and the typical loan amount ranged from $20,000-$30,000.
+
+While Lending Club and Prosper were attacking consumer lending, OnDeck, Kabbage and Funding Circle went after the small-business lending space. They focused on business loans ranging from $100,000-$200,000 for businesses who wanted to pay for inventory, franchises, equipment, etc.
+
+While these online small business lending sites expanded, lending from large banks decreased dramatically. According to bank regulatory filings, the 10 largest banks lent $44.7 billion in 2014, which is down 38 percent from its peak of $72.5 billion in 2006.
+
+The Future of P2P lending
+
+There are several factors that will determine if the rapid growth in peer-to-peer lending will continue:
+
+Rise in interest rates. Most experts believe that as interest rates increase, so too will the number of loan defaults. They believe this will cause the bubble in the lending space to pop. The Fed has already started raising interest rates. However, as long as the economy is doing well and unemployment is low, the number of defaults should not rise that much.
+
+Regulation. Regulators are continuously looking at this space, especially since the San Bernardino terrorist/shooter obtained a $28,500 loan from Prosper weeks before he killed 14 people on December 2, 2015. Prosper issued the loan after all the proper paperwork and background checks were made. While Prosper is not under investigation, the government is now looking at additional regulations to prevent terrorists from getting loans.
+
+Competition from banks. While Goldman Sachs has decided to build their own lending site, most of the other large banks have decided to partner with the existing lending firms. JP Morgan recently announced a partnership with OnDeck Capital that will allow it to outsource to the OnDeck platform business loans under $250,000.
+
+Other banks, like BBVA, Credit Suisse and JP Morgan, have directly invested in Prosper’s latest funding round, while Silicon Valley Bank and Norwest Venture Partners (Wells Fargo is the sole LP for Norwest) have invested in Lending Club.
+
+Market size. How big is the lending market? Lending Club’s IPO filing cites the size of the consumer credit market at $3.2 trillion — $380 billion of that would qualify for Lending Club’s loan policy. Lending firms also may be able to target verticals like auto and medical loans — indeed, Prosper recently acquired American Healthcare Lending.
+
+International markets also could be a large opportunity, but, with the exception of Funding Circle, most sites are focused on the domestic market in the U.S.
+
+P2P lending in 2016
+
+Related Articles
+The Evolving Nature Of P2P Lending Marketplaces
+The P2P Lending Experiment: Lending Club Surpasses $1B In Personal Loans, Hits Profitability
+Lending sites in 2016 will continue to put up impressive numbers. The rise in interest rates should not slow things down, as long as the economy doesn’t crash and cause unemployment to increase dramatically. The lack of defaults due to rising interest rates also should cause the stock price of Lending Club to go up.
+
+We also may see IPOs from Kabbage, Prosper, Avant and SoFi in 2016, with potential acquisitions from large banks, as well as card associations like MasterCard, Visa and Discover.
+
+However, don’t be surprised to see Internet consumer companies like Google, Facebook or Amazon enter this space and either partner with or acquire existing lending sites. These Internet giants would have great synergies with lending sites — and be able to offer these loans to a lot more consumers.

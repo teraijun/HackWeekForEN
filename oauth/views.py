@@ -43,28 +43,20 @@ link_to_en = base_url + '/Home.action'
 # Search_Period = 'updated:month'
 Search_Period = 'updated:day-30'
 
-search_query = [
-    'created:month-2',
-    'created:month-5 -created:month-2',
-    'created:month-8 -created:month-5',
-    'created:month-11 -created:month-8',
+search_for_year_query = [
+    'created:month',
+    'created:month-1 -created:month',
+    'created:month-2 -created:month-1',
+    'created:month-3 -created:month-2',
+    'created:month-4 -created:month-3',
+    'created:month-5 -created:month-4',
+    'created:month-6 -created:month-5',
+    'created:month-7 -created:month-6',
+    'created:month-8 -created:month-7',
+    'created:month-9 -created:month-8',
+    'created:month-10 -created:month-9',
+    'created:month-11 -created:month-10',
 ]
-
-# search_query = [
-#     'created:month -created:month-1',
-#     'created:month-1 -created:month',
-#     'created:month-2 -created:month-1',
-#     'created:month-3 -created:month-2',
-#     'created:month-4 -created:month-3',
-#     'created:month-5 -created:month-4',
-#     'created:month-6 -created:month-5',
-#     'created:month-7 -created:month-6',
-#     'created:month-8 -created:month-7',
-#     'created:month-9 -created:month-8',
-#     'created:month-10 -created:month-9',
-#     'created:month-11 -created:month-10',
-#     'created:month-12 -created:month-11',
-# ]
 
 
 stop_words = [
@@ -164,31 +156,7 @@ def get_info(request):
     })
     return response
 
-def get_num_of_note(note_store, token, guid):
-    note_filter = NoteStore.NoteFilter()
-    note_filter.notebookGuid = guid
-    note_filter.order = NoteSortOrder.UPDATED
-
-    search_spec = NoteStore.NotesMetadataResultSpec()
-    search_spec.includeAttributes = True;
-    search_spec.includeCreated = True;
-    search_spec.includeUpdated = True;
-    search_spec.includeTitle = True;
-
-    notes = []
-    try :
-        noteList = note_store.findNotesMetadata(token, note_filter, 0, 100, search_spec)
-        return len(noteList.notes)
-        # return random.randint(1, 10)
-
-    except Errors.EDAMUserException, edue:
-        print "EDAMUserException:", edue
-        return 0
-
-    except Errors.EDAMNotFoundException, ednfe:
-        print "EDAMNotFoundException: Invalid parent notebook GUID"
-        return 0
-
+# count of each notebook whole year
 def get_notebook(request):
     try:
         token = request.POST['access_token']
@@ -200,10 +168,8 @@ def get_notebook(request):
             'redirect_url': '/login/',
             'home_url': link_to_en,
             'msg': 'Login to use'
-        })    
+        })
     note_store = client.get_note_store()
-
-
     note_filter = NoteStore.NoteFilter()
     note_filter.order = NoteSortOrder.UPDATED
 
@@ -211,7 +177,7 @@ def get_notebook(request):
     personal_note_counts = note_store.findNoteCounts(token, note_filter, False)
     for notebook in personal_note_counts.notebookCounts:
         obj = {}
-        for month in search_query:
+        for month in search_for_year_query:
             count = get_month_note_count(note_store, token, notebook, month)
             obj[month] = count
 
@@ -233,7 +199,7 @@ def get_notebook(request):
         business_note_counts = business_note_store.findNoteCounts(business_token, note_filter, False)
         for notebook in business_note_counts.notebookCounts:
             obj = {}
-            for month in search_query:
+            for month in search_for_year_query:
                 count = get_month_note_count(business_note_store, business_token, notebook, month)
                 obj[month] = count
 
@@ -259,6 +225,93 @@ def get_notebook(request):
     })
     
     return response
+
+def get_words_year(request):
+    try:
+        token = request.POST['access_token']
+        business_token = request.POST['business_token']
+        client = get_evernote_client(token=token)
+    except KeyError:
+        return json_response_with_headers({
+            'status': 'redirect',
+            'redirect_url': '/login/',
+            'home_url': link_to_en,
+            'msg': 'Login to use'
+        })
+    trend_words = {}
+
+    # for personal
+    personal_trends = {}
+    personal_whole_content_each_month = []
+    note_store = client.get_note_store()
+    note_filter = NoteStore.NoteFilter()
+    note_filter.order = NoteSortOrder.UPDATED
+    search_spec = NoteStore.NotesMetadataResultSpec()
+    search_spec.includeAttributes = True;
+    search_spec.includeCreated = True;
+    search_spec.includeUpdated = True;
+    search_spec.includeTitle = True;
+
+    for month in search_for_year_query:
+        whole_content = ''
+        note_filter.words = month
+        try :
+            noteList = note_store.findNotesMetadata(token, note_filter, 0, 100, search_spec)
+            for n in noteList.notes:
+                whole_content += getWholeContentOfNote(note_store, token, n.guid) + ' '
+        except Errors.EDAMUserException, edue:
+            print "EDAMUserException:", edue
+        except Errors.EDAMNotFoundException, ednfe:
+            print "EDAMNotFoundException: Invalid parent notebook GUID"
+
+        personal_whole_content_each_month.append(whole_content)
+
+    # personal_trends = gettrends06.gettrends(personal_whole_content_each_month)
+    personal_trends = personal_whole_content_each_month
+
+    # for business
+    business_trends = {}
+    if business_token :
+        business_whole_content_each_month = []
+        note_store = client.get_note_store()
+        business_note_store = client.get_business_note_store()
+        note_filter = NoteStore.NoteFilter()
+        note_filter.order = NoteSortOrder.UPDATED
+        search_spec = NoteStore.NotesMetadataResultSpec()
+        search_spec.includeAttributes = True;
+        search_spec.includeCreated = True;
+        search_spec.includeUpdated = True;
+        search_spec.includeTitle = True;
+
+        for month in search_for_year_query:
+            whole_content = ''
+            note_filter.words = month
+            try :
+                noteList = business_note_store.findNotesMetadata(business_token, note_filter, 0, 100, search_spec)
+                for n in noteList.notes:
+                    whole_content += getWholeContentOfNote(business_note_store, business_token, n.guid) + ' '
+            except Errors.EDAMUserException, edue:
+                print "EDAMUserException:", edue
+            except Errors.EDAMNotFoundException, ednfe:
+                print "EDAMNotFoundException: Invalid parent notebook GUID"
+
+            business_whole_content_each_month.append(whole_content)
+        # print business_whole_content_each_month[0]
+        business_trends = gettrends06.gettrends(business_whole_content_each_month)
+        # business_trends = business_whole_content_each_month
+
+    trend_words = {
+        'personal': personal_trends,
+        'business': business_trends
+    }
+    response = json_response_with_headers({
+            'status': 'success',
+            'access_token': token,
+            'trend_words': trend_words
+    })
+
+    return response
+
 
 def get_month_note_count(note_store, token, guid, month):
     note_filter = NoteStore.NoteFilter()
@@ -334,16 +387,7 @@ def get_note_common_words(note_store, token):
     try :
         noteList = note_store.findNotesMetadata(token, note_filter, 0, 1, search_spec)
         for n in noteList.notes:
-            content = note_store.getNoteContent(token, n.guid)
-            soup = BeautifulSoup(content.decode('utf-8'), "html.parser")
-            parsed_content = ''
-            for tag in soup.find_all(re.compile('.*')):
-                if tag.string is not None:
-                    if len(parsed_content) == 0:
-                        parsed_content = (tag.string)
-                    else:
-                        parsed_content += ' ' + (tag.string)
-            whole_content += parsed_content + ' '
+            whole_content += getWholeContentOfNote(note_store, token, n.guid) + ' '
 
     except Errors.EDAMUserException, edue:
         print "EDAMUserException:", edue
@@ -356,7 +400,20 @@ def get_note_common_words(note_store, token):
 
     return most_common_words
 
+def getWholeContentOfNote(note_store, token, guid):
+    content = note_store.getNoteContent(token, guid)
+    soup = BeautifulSoup(content.decode('utf-8'), "html.parser")
+    parsed_content = ''
+    for tag in soup.find_all(re.compile('.*')):
+        if tag.string is not None:
+            if len(parsed_content) == 0:
+                parsed_content = (tag.string)
+            else:
+                parsed_content += ' ' + (tag.string)
+    parsed_content += parsed_content + ' '
+    return parsed_content
 
+# bubble Chart
 def get_words(request):
     try:
         token = request.POST['access_token']
@@ -371,12 +428,12 @@ def get_words(request):
         })
     notes = {}
     # for personal
-    personal_note = get_notes_list(client.get_note_store(), token)
+    personal_note = get_notes_list(client.get_note_store(), token, Search_Period)
 
     # for business
     business_note = {}
     if business_token :
-        business_note = get_notes_list(client.get_business_note_store(), business_token)
+        business_note = get_notes_list(client.get_business_note_store(), business_token, Search_Period)
 
     notes = {
         'personal': personal_note,
@@ -389,12 +446,12 @@ def get_words(request):
     })
     return response
 
-def get_notes_list(note_store, token):
+def get_notes_list(note_store, token, query):
     notes = []
     whole_content = ''
     note_filter = NoteStore.NoteFilter()
     note_filter.order = NoteSortOrder.UPDATED
-    note_filter.words = Search_Period
+    note_filter.words = query
 
     search_spec = NoteStore.NotesMetadataResultSpec()
     search_spec.includeAttributes = True;
@@ -404,21 +461,11 @@ def get_notes_list(note_store, token):
     try :
         noteList = note_store.findNotesMetadata(token, note_filter, 0, 100, search_spec)
         for n in noteList.notes:
-            content = note_store.getNoteContent(token, n.guid)
-            soup = BeautifulSoup(content.decode('utf-8'), "html.parser")
-            parsed_content = ''
-            for tag in soup.find_all(re.compile('.*')):
-                if tag.string is not None:
-                    if len(parsed_content) == 0:
-                        parsed_content = (tag.string)
-                    else:
-                        parsed_content += ' ' + (tag.string)
-            whole_content += parsed_content + ' '
+            whole_content += getWholeContentOfNote(note_store, token, n.guid) + ' '
             notes.append({
                 "title": n.title,
                 "note_id": n.guid,
                 "updated": n.updated,
-                "content": parsed_content,
             })
 
     except Errors.EDAMUserException, edue:
@@ -437,40 +484,6 @@ def get_notes_list(note_store, token):
         'most_common_words': most_common_words_obj
     }
     return note
-
-def get_words_year(request):
-    try:
-        token = request.POST['access_token']
-        business_token = request.POST['business_token']
-        client = get_evernote_client(token=token)
-    except KeyError:
-        return json_response_with_headers({
-            'status': 'redirect',
-            'redirect_url': '/login/',
-            'home_url': link_to_en,
-            'msg': 'Login to use'
-        })
-    # notes = {}
-    # # for personal
-    # personal_note = get_notes_list(client.get_note_store(), token)
-
-    # # for business
-    # business_note = {}
-    # if business_token :
-    #     business_note = get_notes_list(client.get_business_note_store(), business_token)
-
-    # notes = {
-    #     'personal': personal_note,
-    #     'business': business_note
-    # }
-    response = json_response_with_headers({
-            'status': 'success',
-            'access_token': token,
-            # 'note': notes
-    })
-    return response
-
-
 
 def get_m_top_words(input):
     stop_words = set(stopwords.words('english'))

@@ -11,15 +11,17 @@ sys.stdout = StringIO()
 from nltk.book import *
 sys.stdout = sys.__stdout__
 
-def gettrends(arr):
+def gettrends():
 	
 	input = []
 	mtopwords = []
-	term, topcount, zeroratio, weight = getparameters01.getparameters(arr)
+	term, topcount, zeroratio, weight = getparameters01.getparameters()
 	
 	for i in range(0, term):
-		input.append(arr[i])
-		# input[i] = input[i].decode('utf-8', errors="ignore")
+		f = open('%i.txt' % i)
+		input.append(f.read())
+		f.close()
+		input[i] = input[i].decode('utf-8', errors="ignore")
 		t = getmtopwords02.getmtopwords(input[i])
 		mtopwords.append(t)
 	
@@ -108,3 +110,5 @@ def gettrends(arr):
 #			print 'No', str(j+1).zfill(2), ':', mtrendwords[i][j][0], "|", mtrendwords[i][j][1]
 	
 	return mtrendwords
+
+print gettrends()
